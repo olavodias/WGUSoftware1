@@ -8,6 +8,15 @@ and open the template in the editor.
     Author     : Olavo Henrique Dias
 */
 
+.emptypanel-border {
+    -fx-content-display: top;
+    -fx-border-insets: 8 8 8 8;
+}
+
+.emptypanel-content {
+    -fx-padding: 5 5 5 5;
+}
+
 .roundedpanel-border {
   -fx-content-display: top;
   -fx-border-insets: 20 15 15 15;
@@ -20,7 +29,31 @@ and open the template in the editor.
   -fx-padding: 26 10 10 10;
 }
 
-/* Dark Blue Colors */
+/* Instance Named Objects */
+#gridCenter {
+    -fx-padding: 16;
+    -fx-hgap: 16;
+}
+
+/* Dark Blue Theme */
+.darkblue-titledpane {
+    -fx-border-color: #38424b;
+    -fx-border-width: 1;
+    -fx-border-radius: 8 8 8 8;
+}
+
+.darkblue-titledpane-title {
+    -fx-text-fill: #ffffff;
+    -fx-font: 14px Tahoma;
+}
+
+.darkblue-titledpane-title-box {
+    -fx-background-color: #38424b;
+    -fx-background-radius: 8 8 0 0;
+    -fx-content-display: top;
+    -fx-padding: 10, 10, 10, 10;
+}
+
 .darkblue-window-title {
     -fx-font: 20px Tahoma;
     -fx-background-color: 

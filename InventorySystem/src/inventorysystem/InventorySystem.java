@@ -41,89 +41,15 @@ public class InventorySystem extends Application {
          * Create the Main Screen
          **********************************************************************/
         
-        /******************************************
-         * Header
-         *****************************************/
+        FXMainScreen formMainScreen = new FXMainScreen();
         
-        /* Label for Title */
-        Label lblHeader_Title = new Label();
-        lblHeader_Title.setText("Inventory Management System");
-        lblHeader_Title.getStyleClass().add("darkblue-window-title-text");
-        
-        /* Horizontal Box */
-        HBox hBoxHeader = new HBox();
-        hBoxHeader.getChildren().add(lblHeader_Title);
-        hBoxHeader.setMinHeight(50);
-        hBoxHeader.setAlignment(Pos.CENTER_LEFT);
-        hBoxHeader.setPadding(new Insets(20));
-        hBoxHeader.getStyleClass().add("darkblue-window-title");
-
-        /***********************************************************************
-         * Bottom
-         **********************************************************************/
-        
-        /* Button to Exit */
-        Button btnBottom_Exit = new Button();
-        btnBottom_Exit.setText("EXIT");
-        btnBottom_Exit.getStyleClass().add("darkblue-button");
-        btnBottom_Exit.setPrefSize(100, 25);
-        
-        btnBottom_Exit.setOnAction(e -> Platform.exit());
-        
-        /* Box to wrap the Button */
-        HBox hBoxBottom = new HBox(btnBottom_Exit);
-        hBoxBottom.setMinHeight(50);
-        hBoxBottom.setAlignment(Pos.CENTER_RIGHT);
-        hBoxBottom.setPadding(new Insets(20));
-        
-        /***********************************************************************
-         * Center
-         **********************************************************************/
-
-        /***************************************
-         * Left Panel
-         **************************************/
-        Label lblTeste = new Label();
-        lblTeste.setText("Testing");
-        
-        StackPane paneParts = GUIHelper.createPanel(lblTeste);
-
-        /***************************************
-         * Right Panel
-         **************************************/
-        StackPane paneProducts = GUIHelper.createPanel(lblTeste);
-
-        /***************************************
-         * GridPane for Both Panels
-         **************************************/
-        GridPane gridCenter = new GridPane();
-        
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(50);
-        
-        gridCenter.getColumnConstraints().addAll(col1, col1);
-        
-        RowConstraints row1 = new RowConstraints();
-        row1.setPercentHeight(100);
-        
-        gridCenter.getRowConstraints().add(row1);
-        
-        gridCenter.add(paneParts, 0, 0);
-        gridCenter.add(paneProducts, 1, 0);
-        
-        /***********************************************************************
-         * Border Pane
-         **********************************************************************/
-        BorderPane border = new BorderPane();
-        border.setTop(hBoxHeader);
-        border.setBottom(hBoxBottom);
-        border.setCenter(gridCenter);
-        
-        Scene scene = new Scene(border, 800, 400);
+        Scene scene = formMainScreen.createScene();
         scene.getStylesheets().add("inventorysystem/InventorySystem.css");
         
         primaryStage.setTitle("Inventory Management System");
         primaryStage.setScene(scene);
+        primaryStage.setMinHeight(400);
+        primaryStage.setMinWidth(800);
         primaryStage.show();
     }
 
