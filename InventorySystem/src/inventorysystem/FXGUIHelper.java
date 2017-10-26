@@ -7,16 +7,16 @@ package inventorysystem;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
- * Provide static methods to create JavaFX screen objects
+ * Provide static methods to create JavaFX screen objects and instantiate scenes.
  * 
  * @author Olavo Henrique Dias
  */
@@ -102,5 +102,54 @@ public class FXGUIHelper {
         pane.setCenter(content);
         
         return pane;
+    }
+    
+    public static Scene createScene(FXSceneCreator screen)
+    {
+        /* Make sure there is a valid screen */
+        if (screen == null) return null;
+            
+        /* Create the Scene */
+        return screen.createScene();
+    }
+    
+    public static Stage createStage(FXSceneCreator screen)
+    {
+        return createStage(screen, "");
+    }
+    
+    public static Stage createStage(FXSceneCreator screen, String title)
+    {
+        return createStage(screen, title, true);
+    }
+    
+    public static Stage createStage(FXSceneCreator screen, String title, boolean resizeable)
+    {
+        return createStage(screen, title, resizeable, null);
+    }
+    
+    public static Stage createStage(FXSceneCreator screen, String title, boolean resizeable, Stage parentStage)
+    {
+        /* Make sure there is a valid screen */
+        if (screen == null) return null;
+        
+        /* Create the Stage */
+        Stage newStage = new Stage();
+        newStage.setTitle(title);
+        newStage.setScene(screen.createScene());
+        newStage.setResizable(resizeable);
+        
+        /* Set Modal */
+        if (parentStage != null)
+        {
+            newStage.initOwner(parentStage);
+            newStage.initModality(Modality.WINDOW_MODAL);
+        }
+        
+        /* Set the Screen Stage */
+        if (screen instanceof FXScreen)
+            ((FXScreen)screen).setCurrentStage(newStage);
+        
+        return newStage;
     }
 }

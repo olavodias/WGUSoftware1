@@ -6,6 +6,8 @@
 package inventorysystem;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,13 +23,23 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import javafx.stage.Stage;
 
 /**
  * Represents the Main Screen
  * 
  * @author Olavo Henrique Dias
  */
-public class FXMainScreen implements FXSceneCreator {
+public class FXMainScreen extends FXScreen implements FXSceneCreator {
+
+    /**
+     * Initializes a new FXMainScreen
+     * 
+     * @param currentStage      The Stage where the screen is being presented
+     */
+    public FXMainScreen(Stage currentStage) {
+        super(currentStage);
+    }
     
     @Override
     public Scene createScene()
@@ -195,12 +207,27 @@ public class FXMainScreen implements FXSceneCreator {
         Button btnActionAdd = new Button();
         btnActionAdd.setText("Add");
         btnActionAdd.getStyleClass().add("darkblue-button");
-        btnActionAdd.setPrefSize(130, 20);        
+        btnActionAdd.setPrefSize(130, 20);
+        btnActionAdd.setOnAction((ActionEvent e) -> {
+            /* Create the FXPartSetupScreen at Add Mode and show it */
+            FXGUIHelper.createStage(new FXPartSetupScreen(null, FXMultiModes.ADD),
+                                    "Add Parts",
+                                    false,
+                                    this.getCurrentStage()).showAndWait();
+        });
 
         Button btnActionModify = new Button();
         btnActionModify.setText("Modify");
         btnActionModify.getStyleClass().add("darkblue-button");
         btnActionModify.setPrefSize(130, 20);        
+        btnActionModify.setOnAction((ActionEvent e) -> {
+            /* Create the FXPartSetupScreen at Modify Mode and show it */
+            FXGUIHelper.createStage(new FXPartSetupScreen(null, FXMultiModes.MODIFY),
+                                    "Modify Parts",
+                                    false,
+                                    this.getCurrentStage()).showAndWait();
+
+        });
 
         Button btnActionDelete = new Button();
         btnActionDelete.setText("Delete");

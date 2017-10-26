@@ -40,8 +40,7 @@ public class InventorySystem extends Application {
         /***********************************************************************
          * Create the Main Screen
          **********************************************************************/
-        
-        FXMainScreen formMainScreen = new FXMainScreen();
+        FXMainScreen formMainScreen = new FXMainScreen(primaryStage);
         
         Scene scene = formMainScreen.createScene();
         scene.getStylesheets().add("inventorysystem/InventorySystem.css");
