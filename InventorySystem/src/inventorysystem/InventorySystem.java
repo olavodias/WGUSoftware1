@@ -48,8 +48,8 @@ public class InventorySystem extends Application {
         
         primaryStage.setTitle("Inventory Management System");
         primaryStage.setScene(scene);
-        primaryStage.setMinHeight(400);
-        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(450);
+        primaryStage.setMinWidth(1000);
         primaryStage.show();
     }
 

@@ -5,12 +5,10 @@
  */
 package inventorysystem;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -18,7 +16,8 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 
 /**
- *
+ * Provide static methods to create JavaFX screen objects
+ * 
  * @author Olavo Henrique Dias
  */
 public class FXGUIHelper {
@@ -64,32 +63,19 @@ public class FXGUIHelper {
         return createPanel(content, "roundedpanel");
     }
     
-    public static GridPane createTitledPanel(String title, Node content)
+    public static BorderPane createTitledPanel(String title, Node content)
     {
         /* Create Titled Panel with blank on the css class */
         return createTitledPanel(title, content, "");
     }
  
-    public static GridPane createTitledPanel(String title, Node content, String cssclass)
+    public static BorderPane createTitledPanel(String title, Node content, String cssclass)
     {
-        /* Create the Grid */
-        GridPane grid = new GridPane();
+        /* Create the Pane */
+        BorderPane pane = new BorderPane();
         
         if (cssclass != "")
-            grid.getStyleClass().add(cssclass);
-        
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(100);
-        
-        RowConstraints row1 = new RowConstraints();
-        row1.setMaxHeight(35);
-        row1.setMinHeight(35);
-        
-        RowConstraints row2 = new RowConstraints();
-        row2.setPercentHeight(100);
-        
-        grid.getColumnConstraints().addAll(col1);
-        grid.getRowConstraints().addAll(row1, row2);
+            pane.getStyleClass().add(cssclass);
         
         /* Create the Title Header */
         Label lblTitledPaneHeader = new Label();
@@ -104,16 +90,17 @@ public class FXGUIHelper {
         HBox hBoxTitle = new HBox();
         hBoxTitle.getChildren().add(lblTitledPaneHeader);
         hBoxTitle.setAlignment(Pos.CENTER_LEFT);
+        hBoxTitle.setPrefHeight(30);
         
         if (cssclass == "")
             hBoxTitle.setStyle("-fx-background-color: #c0c0c0;");
         else
             hBoxTitle.getStyleClass().add(cssclass + "-title-box");
 
-        /* Add Nodes to the Grid */
-        grid.add(hBoxTitle, 0, 0);
-        grid.add(content, 0, 1);
+        /* Add Contents to the BorderPane */
+        pane.setTop(hBoxTitle);
+        pane.setCenter(content);
         
-        return grid;
+        return pane;
     }
 }
