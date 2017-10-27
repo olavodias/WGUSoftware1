@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package inventorysystem;
+package inventorysystem.screens;
 
+import inventorysystem.FXGUIHelper;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -153,9 +153,9 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
         GridPane searchBarGridPane = new GridPane();
         searchBarGridPane.setHgap(8);
         searchBarGridPane.setPadding(new Insets(6, 6, 6, 6));
-                
+
         ColumnConstraints[] colConstraints = new ColumnConstraints[3];
-        
+
         colConstraints[0] = new ColumnConstraints();
         colConstraints[0].setPercentWidth(20);
         colConstraints[0].setHalignment(HPos.RIGHT);
@@ -211,9 +211,10 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
         btnActionAdd.setOnAction((ActionEvent e) -> {
             /* Create the FXPartSetupScreen at Add Mode and show it */
             FXGUIHelper.createStage(new FXPartSetupScreen(null, FXMultiModes.ADD),
-                                    "Add Parts",
+                                    "Parts Management",
                                     false,
-                                    this.getCurrentStage()).showAndWait();
+                                    this.getCurrentStage(),
+                                    "inventorysystem/InventorySystem.css").showAndWait();
         });
 
         Button btnActionModify = new Button();
@@ -223,7 +224,7 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
         btnActionModify.setOnAction((ActionEvent e) -> {
             /* Create the FXPartSetupScreen at Modify Mode and show it */
             FXGUIHelper.createStage(new FXPartSetupScreen(null, FXMultiModes.MODIFY),
-                                    "Modify Parts",
+                                    "Parts Management",
                                     false,
                                     this.getCurrentStage()).showAndWait();
 

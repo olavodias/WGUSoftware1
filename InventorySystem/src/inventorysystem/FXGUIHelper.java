@@ -5,6 +5,8 @@
  */
 package inventorysystem;
 
+import inventorysystem.screens.FXSceneCreator;
+import inventorysystem.screens.FXScreen;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -130,13 +132,26 @@ public class FXGUIHelper {
     
     public static Stage createStage(FXSceneCreator screen, String title, boolean resizeable, Stage parentStage)
     {
+        return createStage(screen, title, resizeable, parentStage, "");
+    }
+    
+    public static Stage createStage(FXSceneCreator screen, String title, boolean resizeable, Stage parentStage, String cssPath)
+    {
         /* Make sure there is a valid screen */
         if (screen == null) return null;
         
         /* Create the Stage */
         Stage newStage = new Stage();
         newStage.setTitle(title);
-        newStage.setScene(screen.createScene());
+        
+        /* Create the Scene */
+        Scene newScene = screen.createScene();
+
+        /* Set Scene Stylesheet */
+        if (cssPath != "")
+            newScene.getStylesheets().add(cssPath);
+
+        newStage.setScene(newScene);
         newStage.setResizable(resizeable);
         
         /* Set Modal */
@@ -144,7 +159,7 @@ public class FXGUIHelper {
         {
             newStage.initOwner(parentStage);
             newStage.initModality(Modality.WINDOW_MODAL);
-        }
+        }                   
         
         /* Set the Screen Stage */
         if (screen instanceof FXScreen)

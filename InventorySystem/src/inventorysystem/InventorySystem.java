@@ -5,6 +5,7 @@
  */
 package inventorysystem;
 
+import inventorysystem.screens.FXMainScreen;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -28,14 +29,6 @@ public class InventorySystem extends Application {
     
     @Override
     public void start(Stage primaryStage) {
-        
-//        btn.setOnAction(new EventHandler<ActionEvent>() {
-//            
-//            @Override
-//            public void handle(ActionEvent event) {
-//                System.out.println("Hello World!");
-//            }
-//        });
         
         /***********************************************************************
          * Create the Main Screen
