@@ -34,7 +34,7 @@ public abstract class Part {
      * Retrieves the Part ID
      * @return      An integer containing the Part ID
      */
-    public int getID()
+    public int getPartID()
     {
         return id.get();
     }
@@ -43,7 +43,7 @@ public abstract class Part {
      * Sets the Part ID
      * @param _id   An integer containing the Part ID
      */
-    public final void setID(int _id)
+    public final void setPartID(int _id)
     {
         id.set(_id);
     }
@@ -168,7 +168,7 @@ public abstract class Part {
     
     public Part(int _id, String _name, double _price, int _inStock, int _min, int _max)
     {
-        this.setID(_id);
+        this.setPartID(_id);
         this.setName(_name);
         this.setPrice(_price);
         this.setInStock(_inStock);

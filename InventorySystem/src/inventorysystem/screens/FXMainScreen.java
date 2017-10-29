@@ -30,19 +30,35 @@ import javafx.stage.Stage;
  * 
  * @author Olavo Henrique Dias
  */
-public class FXMainScreen extends FXScreen implements FXSceneCreator {
+public class FXMainScreen extends FXScreen {
+
+    /* The default name for this form */
+    private static final String DEFAULTTITLE = "Inventory Management System";
+    
+    /**
+     * Initializes a new FXMainScreen
+     * 
+     * @param cssPath           The CSS Path
+     */
+    public FXMainScreen(String cssPath) {
+        this(cssPath, DEFAULTTITLE);
+    }
 
     /**
      * Initializes a new FXMainScreen
      * 
-     * @param currentStage      The Stage where the screen is being presented
+     * @param cssPath           The CSS Path
+     * @param title             The Screen Title
      */
-    public FXMainScreen(Stage currentStage) {
-        super(currentStage);
+    public FXMainScreen(String cssPath, String title) {
+        super(cssPath, title);
+        
+        /* Creates the Scene itself */
+        this.createScene();
     }
-    
+
     @Override
-    public Scene createScene()
+    public final void createScene()
     {
         /******************************************
          * Header
@@ -50,8 +66,10 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
         
         /* Label for Title */
         Label lblHeader_Title = new Label();
-        lblHeader_Title.setText("Inventory Management System");
-        lblHeader_Title.getStyleClass().add("darkblue-window-title-text");
+        lblHeader_Title.setText(super.getTitle());
+        
+        if (super.isStyled()) 
+            lblHeader_Title.getStyleClass().add("darkblue-window-title-text");
         
         /* Horizontal Box */
         HBox hBoxHeader = new HBox();
@@ -59,7 +77,9 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
         hBoxHeader.setMinHeight(50);
         hBoxHeader.setAlignment(Pos.CENTER_LEFT);
         hBoxHeader.setPadding(new Insets(20));
-        hBoxHeader.getStyleClass().add("darkblue-window-title");
+        
+        if (super.isStyled()) 
+            hBoxHeader.getStyleClass().add("darkblue-window-title");
 
         /***********************************************************************
          * Bottom
@@ -68,8 +88,10 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
         /* Button to Exit */
         Button btnBottom_Exit = new Button();
         btnBottom_Exit.setText("EXIT");
-        btnBottom_Exit.getStyleClass().add("darkblue-button");
         btnBottom_Exit.setPrefSize(100, 25);
+        
+        if (super.isStyled())
+            btnBottom_Exit.getStyleClass().add("darkblue-button");        
         
         btnBottom_Exit.setOnAction(e -> Platform.exit());
         
@@ -88,7 +110,7 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
          **************************************/
         BorderPane paneParts = FXGUIHelper.createTitledPanel("Parts", 
                                                              this.createPartsPaneDetails(), 
-                                                             "darkblue-titledpane");
+                                                             (super.isStyled() ? "darkblue-titledpane" : ""));
 
         /***************************************
          * Right Panel
@@ -98,7 +120,7 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
 
         BorderPane paneProducts = FXGUIHelper.createTitledPanel("Products", 
                                                                 lblTeste2, 
-                                                                "darkblue-titledpane");
+                                                                (super.isStyled() ? "darkblue-titledpane" : ""));
 
         /***************************************
          * GridPane for Both Panels
@@ -130,9 +152,8 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
         /***********************************************************************
          * Create the Scene
          **********************************************************************/
-        Scene scene = new Scene(border, 1000, 450);
-       
-        return scene;
+        super.scene = new Scene(border, super.getWidth(), super.getHeight());
+        super.applyCss();
     }
     
     /**
@@ -206,39 +227,42 @@ public class FXMainScreen extends FXScreen implements FXSceneCreator {
         /* Add Action Bar Contents */
         Button btnActionAdd = new Button();
         btnActionAdd.setText("Add");
-        btnActionAdd.getStyleClass().add("darkblue-button");
         btnActionAdd.setPrefSize(130, 20);
         btnActionAdd.setOnAction((ActionEvent e) -> {
             /* Create the FXPartSetupScreen at Add Mode and show it */
-            FXGUIHelper.createStage(new FXPartSetupScreen(null, FXMultiModes.ADD),
-                                    "Parts Management",
-                                    false,
-                                    this.getCurrentStage(),
-                                    "inventorysystem/InventorySystem.css").showAndWait();
+            FXPartSetupScreen newForm = new FXPartSetupScreen(FXMode.ADD, 
+                                                              getCssPath());
+            newForm.show();
         });
+        
+        if (super.isStyled())
+            btnActionAdd.getStyleClass().add("darkblue-button");
 
         Button btnActionModify = new Button();
         btnActionModify.setText("Modify");
-        btnActionModify.getStyleClass().add("darkblue-button");
         btnActionModify.setPrefSize(130, 20);        
         btnActionModify.setOnAction((ActionEvent e) -> {
             /* Create the FXPartSetupScreen at Modify Mode and show it */
-            FXGUIHelper.createStage(new FXPartSetupScreen(null, FXMultiModes.MODIFY),
-                                    "Parts Management",
-                                    false,
-                                    this.getCurrentStage()).showAndWait();
-
+            FXPartSetupScreen newForm = new FXPartSetupScreen(FXMode.MODIFY, 
+                                                              getCssPath());
+            newForm.show(getCurrentStage());
+            e.consume();
         });
+        
+        if (super.isStyled())
+            btnActionModify.getStyleClass().add("darkblue-button");
 
         Button btnActionDelete = new Button();
         btnActionDelete.setText("Delete");
-        btnActionDelete.getStyleClass().add("darkblue-button");
         btnActionDelete.setPrefSize(130, 20);        
         
         actionsBarGridPane.add(btnActionAdd, 0, 0);
         actionsBarGridPane.add(btnActionModify, 1, 0);
         actionsBarGridPane.add(btnActionDelete, 2, 0);
 
+        if (super.isStyled())
+            btnActionDelete.getStyleClass().add("darkblue-button");
+        
         /**********************************************
          * Table View
          **********************************************/

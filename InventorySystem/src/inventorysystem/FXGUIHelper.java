@@ -5,7 +5,6 @@
  */
 package inventorysystem;
 
-import inventorysystem.screens.FXSceneCreator;
 import inventorysystem.screens.FXScreen;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -106,52 +105,27 @@ public class FXGUIHelper {
         return pane;
     }
     
-    public static Scene createScene(FXSceneCreator screen)
+    public static Stage createStage(FXScreen screen)
     {
-        /* Make sure there is a valid screen */
-        if (screen == null) return null;
-            
-        /* Create the Scene */
-        return screen.createScene();
+        return createStage(screen, false);
     }
     
-    public static Stage createStage(FXSceneCreator screen)
+    public static Stage createStage(FXScreen screen, boolean resizeable)
     {
-        return createStage(screen, "");
+        return createStage(screen, resizeable, null);
     }
     
-    public static Stage createStage(FXSceneCreator screen, String title)
-    {
-        return createStage(screen, title, true);
-    }
-    
-    public static Stage createStage(FXSceneCreator screen, String title, boolean resizeable)
-    {
-        return createStage(screen, title, resizeable, null);
-    }
-    
-    public static Stage createStage(FXSceneCreator screen, String title, boolean resizeable, Stage parentStage)
-    {
-        return createStage(screen, title, resizeable, parentStage, "");
-    }
-    
-    public static Stage createStage(FXSceneCreator screen, String title, boolean resizeable, Stage parentStage, String cssPath)
+    public static Stage createStage(FXScreen screen, boolean resizeable, Stage parentStage)
     {
         /* Make sure there is a valid screen */
         if (screen == null) return null;
         
         /* Create the Stage */
         Stage newStage = new Stage();
-        newStage.setTitle(title);
+        newStage.setTitle(screen.getTitle());
         
         /* Create the Scene */
-        Scene newScene = screen.createScene();
-
-        /* Set Scene Stylesheet */
-        if (cssPath != "")
-            newScene.getStylesheets().add(cssPath);
-
-        newStage.setScene(newScene);
+        newStage.setScene(screen.getScene());
         newStage.setResizable(resizeable);
         
         /* Set Modal */
@@ -162,9 +136,8 @@ public class FXGUIHelper {
         }                   
         
         /* Set the Screen Stage */
-        if (screen instanceof FXScreen)
-            ((FXScreen)screen).setCurrentStage(newStage);
-        
+        screen.setCurrentStage(newStage);
+
         return newStage;
     }
 }

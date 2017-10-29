@@ -5,7 +5,6 @@
  */
 package inventorysystem.screens;
 
-import inventorysystem.FXGUIHelper;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -20,36 +19,61 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 
 /**
  * Represents the screen to Add/Modify Parts
  * 
  * @author Olavo Henrique Dias
  */
-public class FXPartSetupScreen extends FXMultiModeScreen implements FXSceneCreator {
+public class FXPartSetupScreen extends FXMultiModeScreen {
     
-    public FXPartSetupScreen(Stage currentStage)
+    /* The default name for this form */
+    private static final String DEFAULTTITLE = "Part Management";
+    
+    public FXPartSetupScreen(String cssPath)
     {
         /* Initialize the screen in Modify Mode */
-        this(currentStage, FXMultiModes.NONE);
+        this(FXMode.NONE, cssPath, DEFAULTTITLE);
+    }
+
+    public FXPartSetupScreen(String cssPath, String title)
+    {
+        /* Initialize the screen in Modify Mode */
+        this(FXMode.NONE, cssPath, title);
     }
     
-    public FXPartSetupScreen(Stage currentStage, FXMultiModes mode)
+    public FXPartSetupScreen(FXMode mode)
     {
         /* Initialize Base */
-        super(currentStage, mode);
+        this(mode, "");
+        
+        /* Create the Scene */
+        this.createScene();
+    }
+
+    public FXPartSetupScreen(FXMode mode, String cssPath)
+    {
+        /* Initialize Base */
+        this(mode, cssPath, DEFAULTTITLE);
+        
+        /* Create the Scene */
+        this.createScene();
+    }
+
+    public FXPartSetupScreen(FXMode mode, String cssPath, String title)
+    {
+        /* Initialize Base */
+        super(mode, cssPath, title);
+        super.setSize(400, 350);
+        
+        /* Create the Scene */
+        this.createScene();
     }
     
-    public FXPartSetupScreen(Stage currentStage, int partID)
-    {
-        /* Initialize Base - Assume edit mode since partID was informed */
-        this(currentStage, FXMultiModes.MODIFY);
-    }
     
     @Override
-    public Scene createScene()
-    {
+    public final void createScene()
+    {        
         /******************************************
          * Header
          *****************************************/
@@ -57,7 +81,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen implements FXSceneCreat
         /* Label for Title */
         Label lblHeader_Title = new Label();
         
-        if (super.getMode() == FXMultiModes.ADD)
+        if (super.getMode() == FXMode.ADD)
             lblHeader_Title.setText("Add Parts");
         else 
             lblHeader_Title.setText("Modify Parts");
@@ -83,11 +107,8 @@ public class FXPartSetupScreen extends FXMultiModeScreen implements FXSceneCreat
         btnActionSave.setPrefSize(100, 20);
         btnActionSave.setOnAction((ActionEvent e) -> {
             /* Create the FXPartSetupScreen at Add Mode and show it */
-            FXGUIHelper.createStage(new FXPartSetupScreen(null, FXMultiModes.ADD),
-                                    "Add Parts",
-                                    false,
-                                    this.getCurrentStage(),
-                                    "inventorysystem/InventorySystem.css").showAndWait();
+            this.getCurrentStage().close();
+            e.consume();
         });
 
         Button btnActionCancel = new Button();
@@ -97,6 +118,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen implements FXSceneCreat
         btnActionCancel.setOnAction((ActionEvent e) -> {
             /* Close Current Stage */
             this.getCurrentStage().close();
+            e.consume();
         });
         
         /* Container for the buttons */
@@ -168,7 +190,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen implements FXSceneCreat
         /* Field: Company Name (For Outsourced Parts) */
         Label lblField_CompanyName = new Label();
         lblField_CompanyName.setText("Company Name");
-        TextField txtField_CompanyName = new TextField();
+        //TextField txtField_CompanyName = new TextField();
         
         
         /* ****** Grid ****** */
@@ -239,8 +261,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen implements FXSceneCreat
         /***********************************************************************
          * Create the Scene
          **********************************************************************/
-        Scene scene = new Scene(border, 400, 350);
-       
-        return scene;        
+        super.scene = new Scene(border, super.getWidth(), super.getHeight());
+        super.applyCss();
     }
 }

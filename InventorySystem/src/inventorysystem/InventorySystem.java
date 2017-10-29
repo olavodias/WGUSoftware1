@@ -33,15 +33,14 @@ public class InventorySystem extends Application {
         /***********************************************************************
          * Create the Main Screen
          **********************************************************************/
-        FXMainScreen formMainScreen = new FXMainScreen(primaryStage);
-        
-        Scene scene = formMainScreen.createScene();
-        scene.getStylesheets().add("inventorysystem/InventorySystem.css");
-        
-        primaryStage.setTitle("Inventory Management System");
-        primaryStage.setScene(scene);
+        FXMainScreen formMainScreen = new FXMainScreen("inventorysystem/InventorySystem.css");
+        formMainScreen.setCurrentStage(primaryStage);
+                
+        primaryStage.setTitle(formMainScreen.getTitle());
+        primaryStage.setScene(formMainScreen.getScene());
         primaryStage.setMinHeight(450);
         primaryStage.setMinWidth(1000);
+        
         primaryStage.show();
     }
 

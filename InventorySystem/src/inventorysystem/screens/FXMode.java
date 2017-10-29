@@ -10,6 +10,6 @@ package inventorysystem.screens;
  * 
  * @author Olavo Henrique Dias
  */
-public enum FXMultiModes {
+public enum FXMode {
     NONE, ADD, MODIFY
 }
