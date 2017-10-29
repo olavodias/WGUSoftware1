@@ -5,6 +5,7 @@
  */
 package inventorysystem.screens;
 
+import inventorysystem.models.Part;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -30,18 +31,94 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
     /* The default name for this form */
     private static final String DEFAULTTITLE = "Part Management";
     
+    /***************************************************************************
+     * Shared UI Fields (to be used by multiple methods)
+     **************************************************************************/
+
+    /* Radio Button - InHouse / Outsourced */
+    final ToggleGroup groupPartType = new ToggleGroup();
+
+    RadioButton rbInHouse = new RadioButton();
+    RadioButton rbOutsourced = new RadioButton();
+    
+    /* Field: ID */
+    Label lblField_ID = new Label();
+    TextField txtField_ID = new TextField();
+
+    /* Field: Name */
+    Label lblField_Name = new Label();
+    TextField txtField_Name = new TextField();
+
+    /* Field: Inventory */
+    Label lblField_Inv = new Label();
+    TextField txtField_Inv = new TextField();
+
+    /* Field: Price/Cost */
+    Label lblField_PriceCost = new Label();
+    TextField txtField_PriceCost = new TextField();
+
+    /* Field: Inventory Maximum */
+    Label lblField_InvMax = new Label();
+    TextField txtField_InvMax = new TextField();
+
+    /* Field: Inventory Minimum */
+    Label lblField_InvMin = new Label();
+    TextField txtField_InvMin = new TextField();
+
+    /* Machine ID */
+    Label lblField_MachineID = new Label();
+    TextField txtField_MachineID = new TextField();
+
+    /* Company Name */
+    Label lblField_CompanyName = new Label();
+    TextField txtField_CompanyName = new TextField();
+
+    /***************************************************************************
+     * FXPartSetupScreen Implementation
+     **************************************************************************/
+    private Part _editingPart;
+    
+    /**
+     * Returns the Part Edited in the Form
+     * @return The Part being edited
+     */
+    public Part getEditingPart() {
+        return _editingPart;
+    }
+    
+    /**
+     * Sets the Editing Part
+     * @param editingPart   The Part to edit
+     */
+    public void setEditingPart(Part editingPart) {
+        _editingPart = editingPart;
+    }
+    
+    /**
+     * Initializes a new instance of the FXPartSetup Screen
+     * @param cssPath       The CSS File Path
+     */
     public FXPartSetupScreen(String cssPath)
     {
         /* Initialize the screen in Modify Mode */
         this(FXMode.NONE, cssPath, DEFAULTTITLE);
     }
 
+    /**
+     * Initializes a new instance of the FXPartSetup Screen
+     * @param cssPath       The CSS File Path
+     * @param title         The Screen Title
+     */
     public FXPartSetupScreen(String cssPath, String title)
     {
         /* Initialize the screen in Modify Mode */
         this(FXMode.NONE, cssPath, title);
     }
     
+    /**
+     * Initializes a new instance of the FXPartSetup Screen
+     * @param mode          The FXMode (Add or Inquiry)
+     */
     public FXPartSetupScreen(FXMode mode)
     {
         /* Initialize Base */
@@ -51,6 +128,11 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         this.createScene();
     }
 
+    /**
+     * Initializes a new instance of the FXPartSetup Screen
+     * @param mode          The FXMode (Add or Inquiry)
+     * @param cssPath       The CSS File Path
+     */
     public FXPartSetupScreen(FXMode mode, String cssPath)
     {
         /* Initialize Base */
@@ -60,6 +142,12 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         this.createScene();
     }
 
+    /**
+     * Initializes a new instance of the FXPartSetup Screen
+     * @param mode          The FXMode (Add or Inquiry)
+     * @param cssPath       The CSS File Path
+     * @param title         The Title of the Screen
+     */
     public FXPartSetupScreen(FXMode mode, String cssPath, String title)
     {
         /* Initialize Base */
@@ -73,7 +161,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
     
     @Override
     public final void createScene()
-    {        
+    {
         /******************************************
          * Header
          *****************************************/
@@ -106,8 +194,9 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         btnActionSave.getStyleClass().add("darkblue-button");
         btnActionSave.setPrefSize(100, 20);
         btnActionSave.setOnAction((ActionEvent e) -> {
-            /* Create the FXPartSetupScreen at Add Mode and show it */
-            this.getCurrentStage().close();
+            /* Sets the result to OK and close screen */
+            setResult(FXScreenResult.OK);
+            getCurrentStage().close();
             e.consume();
         });
 
@@ -116,8 +205,9 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         btnActionCancel.getStyleClass().add("darkblue-button");
         btnActionCancel.setPrefSize(100, 20);
         btnActionCancel.setOnAction((ActionEvent e) -> {
-            /* Close Current Stage */
-            this.getCurrentStage().close();
+            /* Sets the result to CANCEL and close screen */
+            setResult(FXScreenResult.CANCEL);
+            getCurrentStage().close();
             e.consume();
         });
         
@@ -134,13 +224,11 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
          *****************************************/
         
         /* Radio Button - InHouse / Outsourced */
-        final ToggleGroup groupPartType = new ToggleGroup();
-        
-        RadioButton rbInHouse = new RadioButton();
+        rbInHouse = new RadioButton();
         rbInHouse.setToggleGroup(groupPartType);
         rbInHouse.setText("In-House");
         
-        RadioButton rbOutsourced = new RadioButton();
+        rbOutsourced = new RadioButton();
         rbOutsourced.setToggleGroup(groupPartType);
         rbOutsourced.setText("Outsourced");
         
@@ -152,46 +240,45 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         /* ****** Fields ****** */
         
         /* Field: ID */
-        Label lblField_ID = new Label();
+        lblField_ID = new Label();
         lblField_ID.setText("ID");
-        TextField txtField_ID = new TextField();
+        txtField_ID = new TextField();
         txtField_ID.setEditable(false);
 
         /* Field: Name */
-        Label lblField_Name = new Label();
+        lblField_Name = new Label();
         lblField_Name.setText("Name");
-        TextField txtField_Name = new TextField();
+        txtField_Name = new TextField();
 
         /* Field: Inventory */
-        Label lblField_Inv = new Label();
+        lblField_Inv = new Label();
         lblField_Inv.setText("Inventory");
-        TextField txtField_Inv = new TextField();
+        txtField_Inv = new TextField();
 
         /* Field: Price/Cost */
-        Label lblField_PriceCost = new Label();
+        lblField_PriceCost = new Label();
         lblField_PriceCost.setText("Price/Cost");
-        TextField txtField_PriceCost = new TextField();
+        txtField_PriceCost = new TextField();
 
         /* Field: Inventory Maximum */
-        Label lblField_InvMax = new Label();
+        lblField_InvMax = new Label();
         lblField_InvMax.setText("Max");
-        TextField txtField_InvMax = new TextField();
+        txtField_InvMax = new TextField();
 
         /* Field: Inventory Minimum */
-        Label lblField_InvMin = new Label();
+        lblField_InvMin = new Label();
         lblField_InvMin.setText("Min");
-        TextField txtField_InvMin = new TextField();
+        txtField_InvMin = new TextField();
 
         /* Field: Machine ID (For In-House Parts) */
-        Label lblField_MachineID = new Label();
+        lblField_MachineID = new Label();
         lblField_MachineID.setText("Machine ID");
-        TextField txtField_MachineID = new TextField();
+        txtField_MachineID = new TextField();
 
         /* Field: Company Name (For Outsourced Parts) */
-        Label lblField_CompanyName = new Label();
+        lblField_CompanyName = new Label();
         lblField_CompanyName.setText("Company Name");
-        //TextField txtField_CompanyName = new TextField();
-        
+        txtField_CompanyName = new TextField();
         
         /* ****** Grid ****** */
         int iGridCenterRow = 0;
@@ -249,6 +336,17 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         iGridCenterRow++;
         gridCenter.add(lblField_MachineID, 0, iGridCenterRow);
         gridCenter.add(txtField_MachineID, 1, iGridCenterRow, 3, 1);
+
+        /* Company Name (For Outsourced Parts) */
+        gridCenter.add(lblField_CompanyName, 0, iGridCenterRow);
+        gridCenter.add(txtField_CompanyName, 1, iGridCenterRow, 3, 1);
+        
+        /* Set the Part Mode */
+        if (getMode() == FXMode.ADD)
+        {
+            setPartMode(FXPartMode.INHOUSE);
+            rbInHouse.setSelected(true);
+        }
         
         /***********************************************************************
          * Border Pane
@@ -263,5 +361,33 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
          **********************************************************************/
         super.scene = new Scene(border, super.getWidth(), super.getHeight());
         super.applyCss();
+    }
+    
+    
+    /**
+     * Method to configure the screen fields based on the mode
+     * 
+     * @param mode A FXPartMode to define whether the mode in "InHouse" or "Outsourced"
+     */
+    public void setPartMode(FXPartMode mode)
+    {
+        if (mode == FXPartMode.INHOUSE)
+        {
+            /* InHouse Parts - Show Machine ID / Hide Company Name */
+            lblField_MachineID.setVisible(true);
+            txtField_MachineID.setVisible(true);
+            
+            lblField_CompanyName.setVisible(false);
+            txtField_CompanyName.setVisible(false);
+        }
+        else
+        {
+            /* Outsourced Parts - Hide Machine ID / Show Company Name */
+            lblField_MachineID.setVisible(false);
+            txtField_MachineID.setVisible(false);
+            
+            lblField_CompanyName.setVisible(true);
+            txtField_CompanyName.setVisible(true);
+        }
     }
 }

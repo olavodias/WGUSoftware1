@@ -19,12 +19,12 @@ public abstract class Part {
     /******************************************
      * Define Properties for Data Binding
      ******************************************/
-    private final SimpleIntegerProperty id = new SimpleIntegerProperty(0);
-    private final SimpleStringProperty name = new SimpleStringProperty("");
-    private final SimpleDoubleProperty price = new SimpleDoubleProperty(0);
-    private final SimpleIntegerProperty inStock = new SimpleIntegerProperty(0);
-    private final SimpleIntegerProperty min = new SimpleIntegerProperty(0);
-    private final SimpleIntegerProperty max = new SimpleIntegerProperty(0);
+    public final SimpleIntegerProperty idProperty = new SimpleIntegerProperty(0);
+    public final SimpleStringProperty nameProperty = new SimpleStringProperty("");
+    public final SimpleDoubleProperty priceProperty = new SimpleDoubleProperty(0);
+    public final SimpleIntegerProperty inStockProperty = new SimpleIntegerProperty(0);
+    public final SimpleIntegerProperty minProperty = new SimpleIntegerProperty(0);
+    public final SimpleIntegerProperty maxProperty = new SimpleIntegerProperty(0);
     
     /******************************************
      * Property Getters/Setters
@@ -36,7 +36,7 @@ public abstract class Part {
      */
     public int getPartID()
     {
-        return id.get();
+        return idProperty.get();
     }
     
     /**
@@ -45,7 +45,7 @@ public abstract class Part {
      */
     public final void setPartID(int _id)
     {
-        id.set(_id);
+        idProperty.set(_id);
     }
 
     /**
@@ -54,7 +54,7 @@ public abstract class Part {
      */
     public String getName()
     {
-        return name.get();
+        return nameProperty.get();
     }
     
     /**
@@ -63,7 +63,7 @@ public abstract class Part {
      */
     public final void setName(String _name)
     {
-        name.set(_name);
+        nameProperty.set(_name);
     }
     
     /**
@@ -72,7 +72,7 @@ public abstract class Part {
      */
     public double getPrice()
     {
-        return price.get();
+        return priceProperty.get();
     }
     
     /**
@@ -81,7 +81,7 @@ public abstract class Part {
      */
     public final void setPrice(double _price)
     {
-        price.set(_price);
+        priceProperty.set(_price);
     }
 
     /**
@@ -90,7 +90,7 @@ public abstract class Part {
      */
     public int getInStock()
     {
-        return inStock.get();
+        return inStockProperty.get();
     }
     
     /**
@@ -99,7 +99,7 @@ public abstract class Part {
      */
     public final void setInStock(int _inStock)
     {
-        inStock.set(_inStock);
+        inStockProperty.set(_inStock);
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class Part {
      */
     public int getMax()
     {
-        return max.get();
+        return maxProperty.get();
     }
     
     /**
@@ -117,7 +117,7 @@ public abstract class Part {
      */
     public final void setMax(int _max)
     {
-        max.set(_max);
+        maxProperty.set(_max);
     }
 
     /**
@@ -126,7 +126,7 @@ public abstract class Part {
      */
     public int getMin()
     {
-        return min.get();
+        return minProperty.get();
     }
     
     /**
@@ -135,37 +135,23 @@ public abstract class Part {
      */
     public final void setMin(int _min)
     {
-        min.set(_min);
+        minProperty.set(_min);
     }
 
     /******************************************
      * Constructors
      ******************************************/
-    public Part()
-    {
-        this(0, "");
-    }
     
-    public Part(int _id, String _name)
-    {
-        this(_id, _name, 0);
-    }
-
-    public Part(int _id, String _name, double _price)
-    {
-        this(_id, _name, _price, 0);
-    }
-
-    public Part(int _id, String _name, double _price, int _inStock)
-    {
-        this(_id, _name, _price, _inStock, 0);
-    }
-    
-    public Part(int _id, String _name, double _price, int _inStock, int _min)
-    {
-        this(_id, _name, _price, _inStock, _min, 0);
-    }
-    
+    /**
+     * Creates a new Part
+     * 
+     * @param _id               The Part ID
+     * @param _name             The Part Name
+     * @param _price            The Part Price
+     * @param _inStock          The Part Inventory in Stock
+     * @param _min              The Part Minimum Stock
+     * @param _max              The Part Maximum Stock
+     */
     public Part(int _id, String _name, double _price, int _inStock, int _min, int _max)
     {
         this.setPartID(_id);

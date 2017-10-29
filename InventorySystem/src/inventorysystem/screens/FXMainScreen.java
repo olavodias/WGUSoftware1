@@ -57,6 +57,9 @@ public class FXMainScreen extends FXScreen {
         this.createScene();
     }
 
+    /**
+     * Creates the Main Form Scene
+     */
     @Override
     public final void createScene()
     {
@@ -232,7 +235,7 @@ public class FXMainScreen extends FXScreen {
             /* Create the FXPartSetupScreen at Add Mode and show it */
             FXPartSetupScreen newForm = new FXPartSetupScreen(FXMode.ADD, 
                                                               getCssPath());
-            newForm.show();
+            newForm.show(getCurrentStage());
         });
         
         if (super.isStyled())

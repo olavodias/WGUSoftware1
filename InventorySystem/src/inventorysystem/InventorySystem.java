@@ -7,18 +7,6 @@ package inventorysystem;
 
 import inventorysystem.screens.FXMainScreen;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
@@ -27,6 +15,10 @@ import javafx.stage.Stage;
  */
 public class InventorySystem extends Application {
     
+    /**
+     * The Start Method of the Inventory System
+     * @param primaryStage The Stage where the first scene will be displayed
+     */
     @Override
     public void start(Stage primaryStage) {
         
@@ -45,6 +37,7 @@ public class InventorySystem extends Application {
     }
 
     /**
+     * First method to be called by the application
      * @param args the command line arguments
      */
     public static void main(String[] args) {
