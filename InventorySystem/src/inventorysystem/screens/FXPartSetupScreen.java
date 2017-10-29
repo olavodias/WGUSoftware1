@@ -76,22 +76,40 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
     /***************************************************************************
      * FXPartSetupScreen Implementation
      **************************************************************************/
-    private Part _editingPart;
+    private Part _originalPart;
     
     /**
-     * Returns the Part Edited in the Form
-     * @return The Part being edited
+     * Returns the Original Part
+     * @return The Original Part
      */
-    public Part getEditingPart() {
-        return _editingPart;
+    public Part getOriginalPart() {
+        return _originalPart;
     }
     
     /**
-     * Sets the Editing Part
-     * @param editingPart   The Part to edit
+     * Sets the Original Part
+     * @param originalPart   The Original Part
      */
-    public void setEditingPart(Part editingPart) {
-        _editingPart = editingPart;
+    public void setOriginalPart(Part originalPart) {
+        _originalPart = originalPart;
+    }
+
+    private Part _modifiedPart;
+    
+    /**
+     * Returns the Modified Part
+     * @return The Modified Part
+     */
+    public Part getModifiedPart() {
+        return _modifiedPart;
+    }
+    
+    /**
+     * Sets the Modified Part
+     * @param modifiedPart   The MOdified Part
+     */
+    protected void setModifiedPart(Part modifiedPart) {
+        _modifiedPart = modifiedPart;
     }
     
     /**
@@ -195,8 +213,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         btnActionSave.setPrefSize(100, 20);
         btnActionSave.setOnAction((ActionEvent e) -> {
             /* Sets the result to OK and close screen */
-            setResult(FXScreenResult.OK);
-            getCurrentStage().close();
+            handleSaveButtonAction(e);
             e.consume();
         });
 
@@ -389,5 +406,17 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
             lblField_CompanyName.setVisible(true);
             txtField_CompanyName.setVisible(true);
         }
+    }
+    
+    /**
+     * Handler for the Save Button Action
+     * @param event The ActionEvent to control the event handling
+     */
+    private void handleSaveButtonAction(ActionEvent event) {
+        /* Creates a new object with the information on the screen */
+        setResult(FXScreenResult.OK);
+        getCurrentStage().close();
+        
+        event.consume();
     }
 }
