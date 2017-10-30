@@ -10,6 +10,9 @@ import inventorysystem.exceptions.FXFormInputException;
 import inventorysystem.models.Inventory;
 import inventorysystem.models.Part;
 import inventorysystem.models.Product;
+import java.util.Optional;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -20,11 +23,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
 
@@ -64,6 +71,13 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
     Label lblField_InvMin = new Label();
     TextField txtField_InvMin = new TextField();
     
+    /* Table Views */
+    TableView<Part> tableAllParts = new TableView();
+    TableView<Part> tableProductParts = new TableView();
+    
+    /* Lists */
+    ObservableList<Part> availableParts;
+    
     /***************************************************************************
      * Properties
      **************************************************************************/
@@ -85,14 +99,6 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
      */
     public Product getModifiedProduct() {
         return _modifiedProduct;
-    }
-    
-    /**
-     * Sets the Modified Product
-     * @param modifiedProduct   The Modified Product
-     */
-    protected void setModifiedProduct(Product modifiedProduct) {
-        _modifiedProduct = modifiedProduct;
     }
     
     /***************************************************************************
@@ -153,7 +159,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
 
     /**
      * Initializes a new instance of the FXPartSetup Screen in Modify Mode
-     * @param product          The part to edit
+     * @param product       The product to edit
      * @param cssPath       The CSS File Path
      * @param title         The Screen Title
      */
@@ -166,7 +172,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
     /**
      * Initializes a new instance of the FXPartSetup Screen
      * @param mode          The Form Mode (ADD or MODIFY)
-     * @param product          The part to edit
+     * @param product       The product to edit
      * @param cssPath       The CSS File Path
      * @param title         The Screen Title
      */
@@ -174,10 +180,18 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
     {
         /* Initialize Base */
         super(mode, cssPath, title);
-        super.setSize(900, 450);
+        super.setSize(900, 650);
         
-        /* Set the Part Number */
+        /* Set the Product */
         _originalProduct = product;
+
+        if (_originalProduct != null)
+            _modifiedProduct = (Product)_originalProduct.clone();
+        else
+            _modifiedProduct = new Product();
+        
+        /* Initialize List */
+        availableParts = FXCollections.observableArrayList();
         
         /* Create the Scene */
         this.createScene();
@@ -257,17 +271,25 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         gridSplit.setAlignment(Pos.CENTER);
         gridSplit.setPadding(new Insets(6, 6, 6, 6));
         
+        /* Create column constraints */
         ColumnConstraints[] colConstraintsGridSplit = new ColumnConstraints[2];
         
         colConstraintsGridSplit[0] = new ColumnConstraints();
         colConstraintsGridSplit[0].setPercentWidth(40);
-        colConstraintsGridSplit[0].setHalignment(HPos.CENTER);
+        colConstraintsGridSplit[0].setHalignment(HPos.CENTER);        
         
         colConstraintsGridSplit[1] = new ColumnConstraints();
         colConstraintsGridSplit[1].setPercentWidth(60);
         colConstraintsGridSplit[1].setHalignment(HPos.CENTER);
+        colConstraintsGridSplit[1].setHgrow(Priority.ALWAYS);
         
         gridSplit.getColumnConstraints().addAll(colConstraintsGridSplit);
+        
+        /* Create row constraints */
+        RowConstraints rowConstraintGridSplit = new RowConstraints();
+        rowConstraintGridSplit.setVgrow(Priority.ALWAYS);
+        
+        gridSplit.getRowConstraints().add(rowConstraintGridSplit);
         
         /******************************************
          * Center - Column 1
@@ -310,7 +332,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         int iGridCenterRow = 0;
         GridPane gridCenter = new GridPane();
         gridCenter.setPrefWidth(400);
-        gridCenter.setAlignment(Pos.CENTER);
+        gridCenter.setAlignment(Pos.TOP_CENTER);
         gridCenter.setHgap(4);
         gridCenter.setVgap(8);
         
@@ -365,7 +387,15 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         GridPane gridCenterParts = new GridPane();
         gridCenterParts.setAlignment(Pos.CENTER);
         gridCenterParts.setPadding(new Insets(6, 6, 6, 6));
+        gridCenterParts.setVgap(6);
         
+        /* Make sure contains inside it will grow accordingly to the column */
+        ColumnConstraints colConstraintsGridSplitParts = new ColumnConstraints();
+        colConstraintsGridSplitParts.setHgrow(Priority.ALWAYS);
+        
+        gridCenterParts.getColumnConstraints().add(colConstraintsGridSplitParts);
+        
+        /* Setup Two Rows for this grid */
         RowConstraints[] rowConstraintsGridSplitParts = new RowConstraints[2];
         
         rowConstraintsGridSplitParts[0] = new RowConstraints();
@@ -376,13 +406,22 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         rowConstraintsGridSplitParts[1].setPercentHeight(50);
         rowConstraintsGridSplitParts[1].setValignment(VPos.CENTER);        
         
-        gridCenterParts.getRowConstraints().addAll(rowConstraintsGridSplitParts);
+        gridCenterParts.getRowConstraints().addAll(rowConstraintsGridSplitParts);        
         
-        Label lbl1 = new Label("Label1");
-        Label lbl2 = new Label("Label2");
+        /* Create Grid for All Parts */
+        BorderPane paneAllParts = FXGUIHelper.createTitledPanel("Available Parts", 
+                                                                this.createAllPartsPaneDetails(), 
+                                                                (super.isStyled() ? "darkblue-titledpane" : ""));
         
-        gridCenterParts.add(lbl1, 0, 0);
-        gridCenterParts.add(lbl2, 0, 1);
+        
+        
+        /* Create Grid for Product Parts */
+        BorderPane paneProductParts = FXGUIHelper.createTitledPanel("Product Parts", 
+                                                                    this.createProductPartsPaneDetails(), 
+                                                                    (super.isStyled() ? "darkblue-titledpane" : ""));
+        
+        gridCenterParts.add(paneAllParts, 0, 0);
+        gridCenterParts.add(paneProductParts, 0, 1);
         
         gridSplit.add(gridCenterParts, 1, 0);
         
@@ -401,8 +440,14 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         super.applyCss();
 
         /***********************************************************************
-         * Load Original Part when Mode is Modify
+         * Fulfill list of Available Parts
          **********************************************************************/
+        availableParts.addAll(Inventory.getInstance().getAllParts());
+
+        /***********************************************************************
+         * Load Original Product when Mode is Modify
+         **********************************************************************/
+        
         if (super.getMode() == FXMode.MODIFY) {
             txtField_ID.setText(Integer.toString(_originalProduct.getProductID()));
             txtField_Name.setText(_originalProduct.getName());
@@ -410,6 +455,10 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             txtField_PriceCost.setText(Double.toString(_originalProduct.getPrice()));
             txtField_InvMax.setText(Integer.toString(_originalProduct.getMax()));
             txtField_InvMin.setText(Integer.toString(_originalProduct.getMin()));
+            
+            /* Remove Product Parts from Available Parts */
+            for (Part productPart : _originalProduct.getAssociatedParts())
+                availableParts.remove(productPart);
         }
         else
         {
@@ -428,9 +477,6 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         
         try
         {
-            /* Defines the Temporary Part Number */
-            Product _tempProduct = new Product();
-            
             /* Perform Input Validation and Set Values */
 
             /* Name */
@@ -439,12 +485,12 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
                                                "Invalid Product Name",
                                                txtField_Name);
             
-            _tempProduct.setName(txtField_Name.getText().trim());
+            _modifiedProduct.setName(txtField_Name.getText().trim());
             
             /* Inventory */
             try
             {
-                _tempProduct.setInStock(Integer.parseInt(txtField_Inv.getText()));
+                _modifiedProduct.setInStock(Integer.parseInt(txtField_Inv.getText()));
             }
             catch (NumberFormatException e)
             {
@@ -457,7 +503,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             /* Price */
             try
             {
-                _tempProduct.setPrice(Double.parseDouble(txtField_PriceCost.getText()));
+                _modifiedProduct.setPrice(Double.parseDouble(txtField_PriceCost.getText()));
             }
             catch (NumberFormatException e)
             {
@@ -470,7 +516,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             /* Maximum Inventory */
             try
             {
-                _tempProduct.setMax(Integer.parseInt(txtField_InvMax.getText()));
+                _modifiedProduct.setMax(Integer.parseInt(txtField_InvMax.getText()));
             }
             catch (NumberFormatException e)
             {
@@ -483,7 +529,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             /* Minimum Inventory */
             try
             {
-                _tempProduct.setMin(Integer.parseInt(txtField_InvMin.getText()));
+                _modifiedProduct.setMin(Integer.parseInt(txtField_InvMin.getText()));
             }
             catch (NumberFormatException e)
             {
@@ -496,14 +542,14 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             /* Perform Data Validation */
             
             /* Inventory cannot be greater than the maximum value or lower than the minimum value */
-            if (_tempProduct.getInStock() > _tempProduct.getMax()) {
+            if (_modifiedProduct.getInStock() > _modifiedProduct.getMax()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("Inventory cannot be greater than Maximum Inventory.", 
                                                "Inventory Quantity Validation",
                                                txtField_Inv);
             }
 
-            if (_tempProduct.getInStock() < _tempProduct.getMin()) {
+            if (_modifiedProduct.getInStock() < _modifiedProduct.getMin()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("Inventory cannot be less than Minimum Inventory.", 
                                                "Inventory Quantity Validation",
@@ -511,7 +557,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             }
             
             /* Minimum cannot be greater than Maximum */
-            if (_tempProduct.getMin() > _tempProduct.getMax()) {
+            if (_modifiedProduct.getMin() > _modifiedProduct.getMax()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("Minimum quantity cannot be greater than the Maximum Quantity.", 
                                                "Minimum Quantity Validation",
@@ -519,7 +565,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             }
 
             /* Maximum cannot be less than Maximum */
-            if (_tempProduct.getMax() < _tempProduct.getMin()) {
+            if (_modifiedProduct.getMax() < _modifiedProduct.getMin()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("Maximum quantity cannot be less than the Minimum Quantity.", 
                                                "Maximum Quantity Validation",
@@ -527,22 +573,21 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             }
             
             /* Check Product Price greater than Components Price */
-            if (_tempProduct.getPrice() < _tempProduct.getTotalComponentsPrice()) {
+            if (_modifiedProduct.getPrice() < _modifiedProduct.getTotalComponentsPrice()) {
                 /* Throws the exception to the next catch block */
-                throw new FXFormInputException(String.format("The Product Price is %f , which is lower than the total components price of %f", _tempProduct.getPrice(), _tempProduct.getTotalComponentsPrice()), 
+                throw new FXFormInputException(String.format("The Product Price is %f , which is lower than the total components price of %f", _modifiedProduct.getPrice(), _modifiedProduct.getTotalComponentsPrice()), 
                                                "Price Validation",
                                                txtField_PriceCost);
             }
             
             /* Sets the Result to "OK" and close screen */
 
-            /* Part ID */
+            /* Product ID */
             if (super.getMode() == FXMode.ADD)
-                _tempProduct.setProductID(Inventory.getInstance().getNextProductID()); /* Do not use the one on the screen */
+                _modifiedProduct.setProductID(Inventory.getInstance().getNextProductID()); /* Do not use the one on the screen */
             else
-                _tempProduct.setProductID(_originalProduct.getProductID());
+                _modifiedProduct.setProductID(_originalProduct.getProductID());
             
-            setModifiedProduct(_tempProduct);
             setResult(FXScreenResult.OK);
             getCurrentStage().close();
         }
@@ -566,4 +611,245 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             event.consume();
         }
     }
+    
+    /**
+     * Creates the Pane with All Available Parts.
+     *      * 
+     * @return      A BorderPane with all JavaFX objects composing the All Available Parts display.
+     */
+    private BorderPane createAllPartsPaneDetails()
+    {
+        /**********************************************
+         * BorderPane to display the contents 
+         **********************************************/
+        BorderPane partsPane = new BorderPane();
+        
+        /**********************************************
+         * Search Bar 
+         **********************************************/
+        GridPane searchBarGridPane = new GridPane();
+        searchBarGridPane.setHgap(8);
+        searchBarGridPane.setPadding(new Insets(6, 6, 6, 6));
+
+        ColumnConstraints[] colConstraints = new ColumnConstraints[3];
+
+        colConstraints[0] = new ColumnConstraints();
+        colConstraints[0].setPercentWidth(20);
+        colConstraints[0].setHalignment(HPos.RIGHT);
+        
+        colConstraints[1] = new ColumnConstraints();
+        colConstraints[1].setPercentWidth(66);
+        
+        colConstraints[2] = new ColumnConstraints();
+        colConstraints[2].setPercentWidth(14);
+        
+        searchBarGridPane.getColumnConstraints().addAll(colConstraints);
+        
+        /* Add Search Bar Contents */
+        Label lblSearch = new Label();
+        lblSearch.setText("Search:");
+        
+        TextField txtSearch = new TextField();
+        
+        Button btnSearch = new Button();
+        btnSearch.setText("Go");
+        btnSearch.setOnAction((ActionEvent event) -> { 
+        
+            /* Do nothing if there is nothing on the search textfield */
+            if (txtSearch.getText().trim().equals("")) return;
+            
+            /* Define Variables */
+            int searchID = 0;
+            String searchName = "";
+            Part part;
+            
+            /* Check if the search criteria is numeric */
+            try
+            {
+                /* Try to parse it to integer */
+                searchID = Integer.parseInt(txtSearch.getText());
+                
+                /* Search for the Part ID */
+                part = Inventory.getInstance().lookupPart(searchID);
+                if (part != null) {
+                    /* Select it on the TableView and exit */
+                    tableAllParts.getSelectionModel().select(part);
+                    return;
+                }
+            }
+            catch (NumberFormatException e)
+            {
+                /* This is not a numeric field, do nothing */
+            }
+            
+            /* Search for text */
+            searchName = txtSearch.getText().trim();
+            
+            part = Inventory.getInstance().lookupPart(searchName);
+            if (part != null) 
+                /* Select it on the TableView */
+                tableAllParts.getSelectionModel().select(part);
+            else
+            {
+                /* Show alert that no data was found */
+                FXGUIHelper.ErrorBox(DEFAULTTITLE, "No Parts were found", String.format("No Parts could be found with the given criteria ('%s').", searchName));
+            }
+        });
+        
+        /* Add Objects to the GridPane */
+        searchBarGridPane.add(lblSearch, 0, 0);
+        searchBarGridPane.add(txtSearch, 1, 0);
+        searchBarGridPane.add(btnSearch, 2, 0);
+
+        /**********************************************
+         * Actions Bar 
+         **********************************************/
+        GridPane actionsBarGridPane = new GridPane();
+        actionsBarGridPane.setPadding(new Insets(6, 6, 6, 6));
+        
+        ColumnConstraints[] colConstraintsActionBar = new ColumnConstraints[1];
+        
+        colConstraintsActionBar[0] = new ColumnConstraints();
+        colConstraintsActionBar[0].setPercentWidth(100);
+        colConstraintsActionBar[0].setHalignment(HPos.RIGHT);
+        
+        actionsBarGridPane.getColumnConstraints().addAll(colConstraintsActionBar);
+        
+        /* Add Action Bar Contents */
+        Button btnActionAdd = new Button();
+        btnActionAdd.setText("Add");
+        btnActionAdd.setPrefSize(130, 20);
+        btnActionAdd.setOnAction((ActionEvent e) -> {
+            /* Include Part on the Grid */
+        });
+        
+        if (super.isStyled())
+            btnActionAdd.getStyleClass().add("darkblue-button");
+
+        actionsBarGridPane.add(btnActionAdd, 0, 0);
+
+        /**********************************************
+         * Table View
+         **********************************************/
+        tableAllParts = new TableView<>(Inventory.getInstance().getAllParts());
+        tableAllParts.setEditable(false);
+        
+        /* Define Columns */
+
+        /* Column 01: Part ID */
+        TableColumn<Part, String> tColPartID = new TableColumn<>("Part ID");
+        tColPartID.setCellValueFactory(new PropertyValueFactory<>("partID"));
+        tColPartID.setMinWidth(55);
+
+        /* Column 02: Part Name */
+        TableColumn<Part, String> tColPartName = new TableColumn<>("Part Name");
+        tColPartName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        tColPartName.setMinWidth(95);
+        
+        /* Column 03: Inventory Level */
+        TableColumn<Part, Integer> tColInventoryLevel = new TableColumn<>("Inventory Level");
+        tColInventoryLevel.setCellValueFactory(new PropertyValueFactory<>("inStock"));
+        tColInventoryLevel.setMinWidth(130);
+
+        /* Column 04: Price/Cost per Unit */
+        TableColumn<Part, Double> tColPriceCost = new TableColumn<>("Price/Cost per Unit");
+        tColPriceCost.setCellValueFactory(new PropertyValueFactory<>("price"));
+        tColPriceCost.setMinWidth(150);
+        
+        tableAllParts.getColumns().addAll(tColPartID,
+                                          tColPartName,
+                                          tColInventoryLevel,
+                                          tColPriceCost);
+        
+        /**********************************************
+         * Finalize (Add all objects together)
+         **********************************************/
+        partsPane.setTop(searchBarGridPane);
+        partsPane.setCenter(tableAllParts);
+        partsPane.setBottom(actionsBarGridPane);
+        
+        return partsPane;
+    }
+
+    /**
+     * Creates the Pane with the Parts Assigned to the Product.
+     *      * 
+     * @return      A BorderPane with all JavaFX objects composing the Product Parts display.
+     */
+    private BorderPane createProductPartsPaneDetails()
+    {
+        /**********************************************
+         * BorderPane to display the contents 
+         **********************************************/
+        BorderPane partsPane = new BorderPane();
+        
+        /**********************************************
+         * Actions Bar 
+         **********************************************/
+        GridPane actionsBarGridPane = new GridPane();
+        actionsBarGridPane.setPadding(new Insets(6, 6, 6, 6));
+        
+        ColumnConstraints[] colConstraintsActionBar = new ColumnConstraints[1];
+        
+        colConstraintsActionBar[0] = new ColumnConstraints();
+        colConstraintsActionBar[0].setPercentWidth(100);
+        colConstraintsActionBar[0].setHalignment(HPos.RIGHT);
+        
+        actionsBarGridPane.getColumnConstraints().addAll(colConstraintsActionBar);
+        
+        /* Add Action Bar Contents */
+        Button btnActionDelete = new Button();
+        btnActionDelete.setText("Delete");
+        btnActionDelete.setPrefSize(130, 20);
+        btnActionDelete.setOnAction((ActionEvent e) -> {
+            /* Delete Part from the Product */
+        });
+        
+        if (super.isStyled())
+            btnActionDelete.getStyleClass().add("darkblue-button");
+
+        actionsBarGridPane.add(btnActionDelete, 0, 0);
+
+        /**********************************************
+         * Table View
+         **********************************************/
+        tableProductParts = new TableView<>(Inventory.getInstance().getAllParts());
+        tableProductParts.setEditable(false);
+        
+        /* Define Columns */
+
+        /* Column 01: Part ID */
+        TableColumn<Part, String> tColPartID = new TableColumn<>("Part ID");
+        tColPartID.setCellValueFactory(new PropertyValueFactory<>("partID"));
+        tColPartID.setMinWidth(55);
+
+        /* Column 02: Part Name */
+        TableColumn<Part, String> tColPartName = new TableColumn<>("Part Name");
+        tColPartName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        tColPartName.setMinWidth(95);
+        
+        /* Column 03: Inventory Level */
+        TableColumn<Part, Integer> tColInventoryLevel = new TableColumn<>("Inventory Level");
+        tColInventoryLevel.setCellValueFactory(new PropertyValueFactory<>("inStock"));
+        tColInventoryLevel.setMinWidth(130);
+
+        /* Column 04: Price/Cost per Unit */
+        TableColumn<Part, Double> tColPriceCost = new TableColumn<>("Price/Cost per Unit");
+        tColPriceCost.setCellValueFactory(new PropertyValueFactory<>("price"));
+        tColPriceCost.setMinWidth(150);
+        
+        tableProductParts.getColumns().addAll(tColPartID,
+                                              tColPartName,
+                                              tColInventoryLevel,
+                                              tColPriceCost);
+        
+        /**********************************************
+         * Finalize (Add all objects together)
+         **********************************************/
+        partsPane.setCenter(tableProductParts);
+        partsPane.setBottom(actionsBarGridPane);
+        
+        return partsPane;
+    }
+    
 }

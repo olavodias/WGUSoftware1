@@ -16,7 +16,7 @@ import javafx.collections.ObservableList;
  * Represents a Product
  * @author Olavo Henrique Dias
  */
-public class Product {
+public class Product implements Cloneable {
 
     /******************************************
      * Define Properties for Data Binding
@@ -258,4 +258,21 @@ public class Product {
         this.setMin(_min);
     }
     
+    /**
+     * Makes a copy of the existing object
+     * @return A clone of the existing object
+     */
+    @Override
+    public Object clone()
+    {
+        try
+        {
+            return super.clone();
+        }
+        catch (CloneNotSupportedException e) 
+        {
+            return null;
+        }
+        
+    }
 }

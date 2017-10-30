@@ -120,12 +120,84 @@ public class Inventory {
         _products.add(product);
     }
     
+    /**
+     * Removes a product from the Products Collection
+     * @param id        The Product ID
+     * @return          A boolean to define whether the product was deleted or not
+     */
     public boolean removeProduct(int id) {
-        return false;
+         Product product = lookupProduct(id);
+         
+         if (product == null)
+             return false;
+         else
+             return removeProduct(product);
     }
     
+    /**
+     * Removes a product from the Products Collection
+     * @param product   The Product to be removed
+     * @return          A boolean to define whether the product was deleted or not
+     */
+    public boolean removeProduct(Product product) {
+
+        /* Check if product exists on the list */
+        if (_products.contains(product)) 
+        {
+            /* Product Exists, remote it */
+            _products.remove(product);
+            return true;
+        }
+        else
+        {
+            /* Product could not be found */
+            return false;    
+        }
+    }
+    
+    /**
+     * Look for a product by the given ID
+     * @param id        The Product ID
+     * @return An instance of the Product found or null if not found
+     */
     public Product lookupProduct(int id) {
-        return null;
+
+        /* Reference to the product found on the search */
+        Product foundProduct = null;
+        
+        /* Loop thru all rows inside the parts collection */
+        for (int i = 0; i < _products.size(); i++)
+        {
+            if (_products.get(i).getProductID()== id)
+            {
+                foundProduct = _products.get(i);
+                break;
+            }
+        }
+        
+        return foundProduct;
+    }
+
+    /**
+     * Look for a product by the given ID
+     * @param name      The Product Name (partial values are accepted, no wildcard needed)
+     * @return An instance of the Product found or null if not found
+     */
+    public Product lookupProduct(String name) {
+
+        /* Reference to the product found on the search */
+        Product foundProduct = null;
+        
+        for (int i = 0; i < _products.size(); i++)
+        {
+            if (_products.get(i).getName().toUpperCase().contains(name.toUpperCase()))
+            {
+                foundProduct = _products.get(i);
+                break;
+            }
+        }
+        
+        return foundProduct;
     }
     
     /**
@@ -138,6 +210,17 @@ public class Inventory {
         /* This method has no use */
     }
 
+    /**
+     * Replaces a product in the Product Collection
+     * @param originalProduct      Reference to the Original Part
+     * @param newProduct           Reference to the New Part
+     */
+    public void replaceProduct(Product originalProduct, Product newProduct)
+    {
+        _products.add(_products.indexOf(originalProduct), newProduct);
+        _products.remove(originalProduct);
+    }
+    
     /**
      * Add a part to the Parts Collection
      * 
@@ -224,7 +307,6 @@ public class Inventory {
         /* This method has no use */
     }
     
-
     /**
      * Replaces a part in the Part Collection
      * @param originalPart      Reference to the Original Part
@@ -235,6 +317,4 @@ public class Inventory {
         _parts.add(_parts.indexOf(originalPart), newPart);
         _parts.remove(originalPart);
     }
-    
-    
 }

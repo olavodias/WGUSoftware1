@@ -450,7 +450,7 @@ public class FXMainScreen extends FXScreen {
             /* Define Variables */
             int searchID = 0;
             String searchName = "";
-            Part part;
+            Product product;
             
             /* Check if the search criteria is numeric */
             try
@@ -459,10 +459,10 @@ public class FXMainScreen extends FXScreen {
                 searchID = Integer.parseInt(txtSearch.getText());
                 
                 /* Search for the Part ID */
-                part = Inventory.getInstance().lookupPart(searchID);
-                if (part != null) {
+                product = Inventory.getInstance().lookupProduct(searchID);
+                if (product != null) {
                     /* Select it on the TableView and exit */
-                    tableParts.getSelectionModel().select(part);
+                    tableProducts.getSelectionModel().select(product);
                     return;
                 }
             }
@@ -474,10 +474,10 @@ public class FXMainScreen extends FXScreen {
             /* Search for text */
             searchName = txtSearch.getText().trim();
             
-            part = Inventory.getInstance().lookupPart(searchName);
-            if (part != null) 
+            product = Inventory.getInstance().lookupProduct(searchName);
+            if (product != null) 
                 /* Select it on the TableView */
-                tableParts.getSelectionModel().select(part);
+                tableProducts.getSelectionModel().select(product);
             else
             {
                 /* Show alert that no data was found */
@@ -536,20 +536,20 @@ public class FXMainScreen extends FXScreen {
         btnActionModify.setOnAction((ActionEvent e) -> {
             
             /* Retrieve Selected Item */
-            if (tableParts.getSelectionModel().getSelectedItem() == null) {
+            if (tableProducts.getSelectionModel().getSelectedItem() == null) {
                 e.consume();
                 return;
             }
                 
-            Part originalProduct = (Part)tableParts.getSelectionModel().getSelectedItem();
+            Product originalProduct = (Product)tableProducts.getSelectionModel().getSelectedItem();
             
-            /* Create the FXPartSetupScreen at Modify Mode and show it */            
-            FXPartSetupScreen newForm = new FXPartSetupScreen(originalProduct,
-                                                              getCssPath());
+            /* Create the FXProductSetupScreen at Modify Mode and show it */            
+            FXProductSetupScreen newForm = new FXProductSetupScreen(originalProduct,
+                                                                    getCssPath());
             
             /* Show screen and, if user clicked ok, change it on the collection */
             if (newForm.show(getCurrentStage()) == FXScreenResult.OK)
-                Inventory.getInstance().replacePart(originalProduct, newForm.getModifiedPart());
+                Inventory.getInstance().replaceProduct(originalProduct, newForm.getModifiedProduct());
             else
                 e.consume();
         });
