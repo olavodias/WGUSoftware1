@@ -5,13 +5,20 @@
  */
 package inventorysystem.screens;
 
+import inventorysystem.FXGUIHelper;
+import inventorysystem.exceptions.FXFormInputException;
+import inventorysystem.models.InHousePart;
+import inventorysystem.models.Inventory;
+import inventorysystem.models.OutsourcedPart;
 import inventorysystem.models.Part;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -20,6 +27,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 
 /**
  * Represents the screen to Add/Modify Parts
@@ -76,7 +84,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
     /***************************************************************************
      * FXPartSetupScreen Implementation
      **************************************************************************/
-    private Part _originalPart;
+    protected final Part _originalPart;
     
     /**
      * Returns the Original Part
@@ -84,14 +92,6 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
      */
     public Part getOriginalPart() {
         return _originalPart;
-    }
-    
-    /**
-     * Sets the Original Part
-     * @param originalPart   The Original Part
-     */
-    public void setOriginalPart(Part originalPart) {
-        _originalPart = originalPart;
     }
 
     private Part _modifiedPart;
@@ -112,71 +112,97 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         _modifiedPart = modifiedPart;
     }
     
+    /***************************************************************************
+     * Constructors
+     **************************************************************************/
+    
     /**
-     * Initializes a new instance of the FXPartSetup Screen
+     * Initializes a new instance of the FXPartSetup Screen in Add Mode
+     */
+    public FXPartSetupScreen()
+    {
+        /* Initialize the screen in Add Mode */
+        this("");
+    }
+    
+    /**
+     * Initializes a new instance of the FXPartSetup Screen in Add Mode
      * @param cssPath       The CSS File Path
      */
     public FXPartSetupScreen(String cssPath)
     {
-        /* Initialize the screen in Modify Mode */
-        this(FXMode.NONE, cssPath, DEFAULTTITLE);
+        /* Initialize the screen in Add Mode */
+        this(cssPath, DEFAULTTITLE);
     }
 
     /**
-     * Initializes a new instance of the FXPartSetup Screen
+     * Initializes a new instance of the FXPartSetup Screen in Add Mode
      * @param cssPath       The CSS File Path
      * @param title         The Screen Title
      */
     public FXPartSetupScreen(String cssPath, String title)
     {
+        /* Initialize the screen in Add Mode */
+        this(FXMode.ADD, null, cssPath, title);
+    }
+    
+    /**
+     * Initializes a new instance of the FXPartSetup Screen in Modify Mode
+     * @param part          The part to edit
+     */
+    public FXPartSetupScreen(Part part)
+    {
         /* Initialize the screen in Modify Mode */
-        this(FXMode.NONE, cssPath, title);
+        this(part, "");
+    }
+    
+    
+    /**
+     * Initializes a new instance of the FXPartSetup Screen in Modify Mode
+     * @param part          The part to edit
+     * @param cssPath       The CSS File Path
+     */
+    public FXPartSetupScreen(Part part, String cssPath)
+    {
+        /* Initialize the screen in Modify Mode */
+        this(part, cssPath, DEFAULTTITLE);
+    }
+
+    /**
+     * Initializes a new instance of the FXPartSetup Screen in Modify Mode
+     * @param part          The part to edit
+     * @param cssPath       The CSS File Path
+     * @param title         The Screen Title
+     */
+    public FXPartSetupScreen(Part part, String cssPath, String title)
+    {
+        /* Initialize the screen in Modify Mode */
+        this(FXMode.MODIFY, part, cssPath, title);
     }
     
     /**
      * Initializes a new instance of the FXPartSetup Screen
-     * @param mode          The FXMode (Add or Inquiry)
-     */
-    public FXPartSetupScreen(FXMode mode)
-    {
-        /* Initialize Base */
-        this(mode, "");
-        
-        /* Create the Scene */
-        this.createScene();
-    }
-
-    /**
-     * Initializes a new instance of the FXPartSetup Screen
-     * @param mode          The FXMode (Add or Inquiry)
+     * @param mode          The Form Mode (ADD or MODIFY)
+     * @param part          The part to edit
      * @param cssPath       The CSS File Path
+     * @param title         The Screen Title
      */
-    public FXPartSetupScreen(FXMode mode, String cssPath)
-    {
-        /* Initialize Base */
-        this(mode, cssPath, DEFAULTTITLE);
-        
-        /* Create the Scene */
-        this.createScene();
-    }
-
-    /**
-     * Initializes a new instance of the FXPartSetup Screen
-     * @param mode          The FXMode (Add or Inquiry)
-     * @param cssPath       The CSS File Path
-     * @param title         The Title of the Screen
-     */
-    public FXPartSetupScreen(FXMode mode, String cssPath, String title)
+    protected FXPartSetupScreen(FXMode mode, Part part, String cssPath, String title)
     {
         /* Initialize Base */
         super(mode, cssPath, title);
         super.setSize(400, 350);
         
+        /* Set the Part Number */
+        _originalPart = part;
+        
         /* Create the Scene */
         this.createScene();
     }
     
-    
+    /**
+     * Creates the Part Setup Screen
+     */
     @Override
     public final void createScene()
     {
@@ -214,7 +240,6 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         btnActionSave.setOnAction((ActionEvent e) -> {
             /* Sets the result to OK and close screen */
             handleSaveButtonAction(e);
-            e.consume();
         });
 
         Button btnActionCancel = new Button();
@@ -222,10 +247,14 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         btnActionCancel.getStyleClass().add("darkblue-button");
         btnActionCancel.setPrefSize(100, 20);
         btnActionCancel.setOnAction((ActionEvent e) -> {
+            
             /* Sets the result to CANCEL and close screen */
-            setResult(FXScreenResult.CANCEL);
-            getCurrentStage().close();
-            e.consume();
+            if (FXGUIHelper.ConfirmationBox(DEFAULTTITLE, "Are you sure?", "All your changes will be lost").get() == ButtonType.OK) {
+                setResult(FXScreenResult.CANCEL);
+                getCurrentStage().close();
+            }
+            else
+                e.consume();
         });
         
         /* Container for the buttons */
@@ -244,10 +273,16 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         rbInHouse = new RadioButton();
         rbInHouse.setToggleGroup(groupPartType);
         rbInHouse.setText("In-House");
+        rbInHouse.setOnAction((ActionEvent e) -> { 
+            setPartMode(FXPartMode.INHOUSE);
+        });
         
         rbOutsourced = new RadioButton();
         rbOutsourced.setToggleGroup(groupPartType);
         rbOutsourced.setText("Outsourced");
+        rbOutsourced.setOnAction((ActionEvent e) -> { 
+            setPartMode(FXPartMode.OUTSOURCED);
+        });
         
         HBox rbContainer = new HBox();
         rbContainer.setSpacing(10);
@@ -358,13 +393,6 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         gridCenter.add(lblField_CompanyName, 0, iGridCenterRow);
         gridCenter.add(txtField_CompanyName, 1, iGridCenterRow, 3, 1);
         
-        /* Set the Part Mode */
-        if (getMode() == FXMode.ADD)
-        {
-            setPartMode(FXPartMode.INHOUSE);
-            rbInHouse.setSelected(true);
-        }
-        
         /***********************************************************************
          * Border Pane
          **********************************************************************/
@@ -378,8 +406,41 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
          **********************************************************************/
         super.scene = new Scene(border, super.getWidth(), super.getHeight());
         super.applyCss();
+
+        /***********************************************************************
+         * Load Original Part when Mode is Modify
+         **********************************************************************/
+        if (super.getMode() == FXMode.MODIFY) {
+            txtField_ID.setText(Integer.toString(_originalPart.getPartID()));
+            txtField_Name.setText(_originalPart.getName());
+            txtField_Inv.setText(Integer.toString(_originalPart.getInStock()));
+            txtField_PriceCost.setText(Double.toString(_originalPart.getPrice()));
+            txtField_InvMax.setText(Integer.toString(_originalPart.getMax()));
+            txtField_InvMin.setText(Integer.toString(_originalPart.getMin()));
+            
+            if (_originalPart.getClass() == InHousePart.class) 
+            {
+                txtField_MachineID.setText(Integer.toString(((InHousePart)_originalPart).getMachineID()));
+                groupPartType.selectToggle(rbInHouse);
+                setPartMode(FXPartMode.INHOUSE);
+            }
+            else 
+            {
+                txtField_CompanyName.setText(((OutsourcedPart)_originalPart).getCompanyName());
+                groupPartType.selectToggle(rbOutsourced);
+                setPartMode(FXPartMode.OUTSOURCED);
+            }
+        }
+        else
+        {
+            txtField_ID.setText(Integer.toString(Inventory.getInstance().getNextPartID(false)));
+            groupPartType.selectToggle(rbInHouse);
+            setPartMode(FXPartMode.INHOUSE);
+        }
+        
+        /* Focus on the Name Field */
+        txtField_Name.requestFocus();
     }
-    
     
     /**
      * Method to configure the screen fields based on the mode
@@ -413,10 +474,178 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
      * @param event The ActionEvent to control the event handling
      */
     private void handleSaveButtonAction(ActionEvent event) {
-        /* Creates a new object with the information on the screen */
-        setResult(FXScreenResult.OK);
-        getCurrentStage().close();
         
-        event.consume();
+        try
+        {
+            /* Defines the Temporary Part Number */
+            Part _tempPart;
+            
+            /* Creates a new object with the information on the screen */
+            if (groupPartType.getSelectedToggle().equals(rbInHouse))
+            {
+                /* This is an InHouse Part */
+                _tempPart = new InHousePart();
+
+                /* Validate Machine ID - It has to be an integer */
+                try
+                {
+                    if (txtField_MachineID.getText().trim().equals(""))
+                    {
+                        /* There is nothing on the Machine ID, set to Zero */
+                        ((InHousePart)_tempPart).setMachineID(0);
+                    }
+                    else
+                    {
+                        /* Try to parte the value to an integer */
+                        ((InHousePart)_tempPart).setMachineID(Integer.parseInt(txtField_MachineID.getText().trim()));
+                    }
+                }
+                catch (NumberFormatException e)
+                {
+                    /* Throws the exception to the next catch block */
+                    throw new FXFormInputException("Enter a valid MachineID, it has to be a numeric value.",
+                                                   "Invalid Machine ID",
+                                                   txtField_MachineID);
+                }
+                catch (Exception e)
+                {
+                    /* Any random exception */
+                    throw e;
+                }
+            }
+            else
+            {
+                /* This is an Outsourced Part */
+                _tempPart = new OutsourcedPart();
+
+                ((OutsourcedPart)_tempPart).setCompanyName(txtField_CompanyName.getText().trim());
+            }
+
+            /* Perform Input Validation and Set Values */
+
+            /* Name */
+            if (txtField_Name.getText().trim().equals(""))
+                throw new FXFormInputException("The Part Name cannot be blank.", 
+                                               "Invalid Part Name",
+                                               txtField_Name);
+            
+            _tempPart.setName(txtField_Name.getText().trim());
+            
+            /* Inventory */
+            try
+            {
+                _tempPart.setInStock(Integer.parseInt(txtField_Inv.getText()));
+            }
+            catch (NumberFormatException e)
+            {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException(String.format("Inventory quantity must be a numeric value.\n\n A value of '%s' is not valid.", txtField_Inv.getText()), 
+                                               "Invalid In Stock Quantity",
+                                               txtField_Inv);
+            }
+            
+            /* Price */
+            try
+            {
+                _tempPart.setPrice(Double.parseDouble(txtField_PriceCost.getText()));
+            }
+            catch (NumberFormatException e)
+            {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException(String.format("Price must be a numeric value.\n\n A value of '%s' is not valid.", txtField_PriceCost.getText()), 
+                                               "Invalid Price / Cost",
+                                               txtField_PriceCost);
+            }
+
+            /* Maximum Inventory */
+            try
+            {
+                _tempPart.setMax(Integer.parseInt(txtField_InvMax.getText()));
+            }
+            catch (NumberFormatException e)
+            {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException(String.format("Maximum Inventory quantity must be a numeric value.\n\n A value of '%s' is not valid.", txtField_InvMax.getText()), 
+                                               "Invalid Maximum Inventory Quantity",
+                                               txtField_InvMax);
+            }
+
+            /* Minimum Inventory */
+            try
+            {
+                _tempPart.setMin(Integer.parseInt(txtField_InvMin.getText()));
+            }
+            catch (NumberFormatException e)
+            {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException(String.format("Minimum Inventory quantity must be a numeric value.\n\n A value of '%s' is not valid.", txtField_InvMin.getText()), 
+                                               "Invalid Minimum Inventory Quantity",
+                                               txtField_InvMin);
+            }
+            
+            /* Perform Data Validation */
+            
+            /* Inventory cannot be greater than the maximum value or lower than the minimum value */
+            if (_tempPart.getInStock() > _tempPart.getMax()) {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException("Inventory cannot be greater than Maximum Inventory.", 
+                                               "Inventory Quantity Validation",
+                                               txtField_Inv);
+            }
+
+            if (_tempPart.getInStock() < _tempPart.getMin()) {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException("Inventory cannot be less than Minimum Inventory.", 
+                                               "Inventory Quantity Validation",
+                                               txtField_Inv);
+            }
+            
+            /* Minimum cannot be greater than Maximum */
+            if (_tempPart.getMin() > _tempPart.getMax()) {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException("Minimum quantity cannot be greater than the Maximum Quantity.", 
+                                               "Minimum Quantity Validation",
+                                               txtField_InvMin);
+            }
+
+            /* Maximum cannot be less than Maximum */
+            if (_tempPart.getMax() < _tempPart.getMin()) {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException("Maximum quantity cannot be less than the Minimum Quantity.", 
+                                               "Maximum Quantity Validation",
+                                               txtField_InvMax);
+            }
+            
+            /* Sets the Result to "OK" and close screen */
+
+            /* Part ID */
+            if (super.getMode() == FXMode.ADD)
+                _tempPart.setPartID(Inventory.getInstance().getNextPartID()); /* Do not use the one on the screen */
+            else
+                _tempPart.setPartID(_originalPart.getPartID());
+            
+            setModifiedPart(_tempPart);
+            setResult(FXScreenResult.OK);
+            getCurrentStage().close();
+        }
+        catch (FXFormInputException e)
+        {
+            /* Display the Alert */
+
+            /* Alert Box to Display Errors */
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Invalid Data Input");
+            alert.setHeaderText(e.getHeaderText());
+            alert.setContentText(e.getMessage());
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.showAndWait();
+            
+            /* Focus on the TextField */
+            if (e.getTextField() != null)
+                e.getTextField().requestFocus();
+                
+            /* Consume the event so no further event handlers will be called */
+            event.consume();
+        }
     }
 }

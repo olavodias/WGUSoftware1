@@ -6,24 +6,30 @@
 package inventorysystem.screens;
 
 import inventorysystem.FXGUIHelper;
+import inventorysystem.models.Inventory;
+import inventorysystem.models.Part;
+import java.util.Optional;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.RowConstraints;
-import javafx.stage.Stage;
 
 /**
  * Represents the Main Screen
@@ -34,6 +40,9 @@ public class FXMainScreen extends FXScreen {
 
     /* The default name for this form */
     private static final String DEFAULTTITLE = "Inventory Management System";
+    
+    /* UI Elements to be shared accoss the Form */
+    TableView<Part> tableParts = new TableView();
     
     /**
      * Initializes a new FXMainScreen
@@ -200,6 +209,43 @@ public class FXMainScreen extends FXScreen {
         
         Button btnSearch = new Button();
         btnSearch.setText("Go");
+        btnSearch.setOnAction((ActionEvent event) -> { 
+        
+            /* Do nothing if there is nothing on the search textfield */
+            if (txtSearch.getText().trim().equals("")) return;
+            
+            /* Define Variables */
+            int searchID = 0;
+            String searchName = "";
+            Part part;
+            
+            /* Check if the search criteria is numeric */
+            try
+            {
+                /* Try to parse it to integer */
+                searchID = Integer.parseInt(txtSearch.getText());
+                
+                /* Search for the Part ID */
+                part = Inventory.getInstance().lookupPart(searchID);
+                if (part != null) {
+                    /* Select it on the TableView and exit */
+                    tableParts.getSelectionModel().select(part);
+                    return;
+                }
+            }
+            catch (NumberFormatException e)
+            {
+                /* This is not a numeric field, do nothing */
+            }
+            
+            /* Search for text */
+            searchName = txtSearch.getText().trim();
+            
+            part = Inventory.getInstance().lookupPart(searchName);
+            if (part != null) 
+                /* Select it on the TableView */
+                tableParts.getSelectionModel().select(part);
+        });
         
         searchBarGridPane.add(lblSearch, 0, 0);
         searchBarGridPane.add(txtSearch, 1, 0);
@@ -233,9 +279,13 @@ public class FXMainScreen extends FXScreen {
         btnActionAdd.setPrefSize(130, 20);
         btnActionAdd.setOnAction((ActionEvent e) -> {
             /* Create the FXPartSetupScreen at Add Mode and show it */
-            FXPartSetupScreen newForm = new FXPartSetupScreen(FXMode.ADD, 
-                                                              getCssPath());
-            newForm.show(getCurrentStage());
+            FXPartSetupScreen newForm = new FXPartSetupScreen(getCssPath());
+            
+            /* Show screen and, if user clicked ok, save it */
+            if (newForm.show(getCurrentStage()) == FXScreenResult.OK)
+                Inventory.getInstance().addPart(newForm.getModifiedPart());
+            else
+                e.consume();
         });
         
         if (super.isStyled())
@@ -245,11 +295,24 @@ public class FXMainScreen extends FXScreen {
         btnActionModify.setText("Modify");
         btnActionModify.setPrefSize(130, 20);        
         btnActionModify.setOnAction((ActionEvent e) -> {
-            /* Create the FXPartSetupScreen at Modify Mode and show it */
-            FXPartSetupScreen newForm = new FXPartSetupScreen(FXMode.MODIFY, 
+            
+            /* Retrieve Selected Item */
+            if (tableParts.getSelectionModel().getSelectedItem() == null) {
+                e.consume();
+                return;
+            }
+                
+            Part originalPart = (Part)tableParts.getSelectionModel().getSelectedItem();
+            
+            /* Create the FXPartSetupScreen at Modify Mode and show it */            
+            FXPartSetupScreen newForm = new FXPartSetupScreen(originalPart,
                                                               getCssPath());
-            newForm.show(getCurrentStage());
-            e.consume();
+            
+            /* Show screen and, if user clicked ok, change it on the collection */
+            if (newForm.show(getCurrentStage()) == FXScreenResult.OK)
+                Inventory.getInstance().replacePart(originalPart, newForm.getModifiedPart());
+            else
+                e.consume();
         });
         
         if (super.isStyled())
@@ -257,7 +320,31 @@ public class FXMainScreen extends FXScreen {
 
         Button btnActionDelete = new Button();
         btnActionDelete.setText("Delete");
-        btnActionDelete.setPrefSize(130, 20);        
+        btnActionDelete.setPrefSize(130, 20);
+        btnActionDelete.setOnAction((ActionEvent e) -> { 
+        
+            /* Retrieve Selected Item */
+            if (tableParts.getSelectionModel().getSelectedItem() == null) {
+                e.consume();
+                return;
+            }
+                
+            Part originalPart = (Part)tableParts.getSelectionModel().getSelectedItem();
+            
+            /* Display alert to ask for confirmation */
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Part");
+            alert.setHeaderText("Are you sure?");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.setContentText(String.format("You are about to remote item %d (%s) from your parts collection...", originalPart.getPartID(), originalPart.getName()));
+            
+            /* Process Confirmation Result */
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK)
+                Inventory.getInstance().deletePart(originalPart);
+            else
+                e.consume();
+        });
         
         actionsBarGridPane.add(btnActionAdd, 0, 0);
         actionsBarGridPane.add(btnActionModify, 1, 0);
@@ -269,32 +356,35 @@ public class FXMainScreen extends FXScreen {
         /**********************************************
          * Table View
          **********************************************/
-        TableView tableParts = new TableView();
+        tableParts = new TableView<>(Inventory.getInstance().getAllParts());
         tableParts.setEditable(false);
         
         /* Define Columns */
-        TableColumn[] tableColumns = new TableColumn[4];
-        
-        /* Column 01: Part ID */
-        tableColumns[0] = new TableColumn("Part ID");
-        tableColumns[0].setMinWidth(55);
-        
-        /* Column 02: Part Name */
-        tableColumns[1] = new TableColumn("Part Name");
-        tableColumns[1].setMinWidth(95);
 
+        /* Column 01: Part ID */
+        TableColumn<Part, String> tColPartID = new TableColumn<>("Part ID");
+        tColPartID.setCellValueFactory(new PropertyValueFactory<>("partID"));
+        tColPartID.setMinWidth(55);
+
+        /* Column 02: Part Name */
+        TableColumn<Part, String> tColPartName = new TableColumn<>("Part Name");
+        tColPartName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        tColPartName.setMinWidth(95);
+        
         /* Column 03: Inventory Level */
-        tableColumns[2] = new TableColumn("Inventory Level");
-        tableColumns[2].setMinWidth(130);
+        TableColumn<Part, Integer> tColInventoryLevel = new TableColumn<>("Inventory Level");
+        tColInventoryLevel.setCellValueFactory(new PropertyValueFactory<>("inStock"));
+        tColInventoryLevel.setMinWidth(130);
 
         /* Column 04: Price/Cost per Unit */
-        tableColumns[3] = new TableColumn("Price/Cost per Unit");
-        tableColumns[3].setMinWidth(150);
+        TableColumn<Part, Double> tColPriceCost = new TableColumn<>("Price/Cost per Unit");
+        tColPriceCost.setCellValueFactory(new PropertyValueFactory<>("price"));
+        tColPriceCost.setMinWidth(150);
         
-        tableParts.getColumns().addAll(tableColumns[0],
-                                       tableColumns[1],
-                                       tableColumns[2],
-                                       tableColumns[3]);
+        tableParts.getColumns().addAll(tColPartID,
+                                       tColPartName,
+                                       tColInventoryLevel,
+                                       tColPriceCost);
         
         /**********************************************
          * Finalize (Add all objects together)

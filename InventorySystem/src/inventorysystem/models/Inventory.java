@@ -49,14 +49,42 @@ public class Inventory {
         return _parts;
     }
     
+    private int _nextPartID;
+    
+    /**
+     * Returns the next part id to use and increment the next number
+     * @return An integer containing the next part ID
+     */
+    public int getNextPartID() {
+        return getNextPartID(true);
+    }
+    
+    /**
+     * Returns the next part id to use
+     * @param autoIncrement A boolean to define whether to increment the next number or not
+     * @return An integer containing the next part ID
+     */
+    public int getNextPartID(boolean autoIncrement) {
+        
+        /* Checks whether to increment or not the part id */
+        if (autoIncrement)
+            return _nextPartID++;
+        else
+            return _nextPartID;
+    }
+    
     /**
      * Initializes a new instance of the Inventory Management
      * This is a private constructor, because this object will be used following
      * the singleton design pattern
      */
     private Inventory() {
+        /* Initialize Collections */
         _products = FXCollections.observableArrayList();
         _parts = FXCollections.observableArrayList();
+        
+        /* Initialize the Part ID */
+        _nextPartID = 1;
     }
     
     public void addProduct(Product product) {
@@ -81,10 +109,20 @@ public class Inventory {
         /* This method has no use */
     }
 
+    /**
+     * Add a part to the Parts Collection
+     * 
+     * @param part The Part to be added
+     */
     public void addPart(Part part) {
         _parts.add(part);
     }
     
+    /**
+     * Removes a part from the Parts Collection
+     * @param part The Part to be removed
+     * @return A Boolean to define whether the part was deleted or not
+     */
     public boolean deletePart(Part part) {
         /* Check if part exists on the list */
         if (_parts.contains(part)) 
@@ -100,6 +138,11 @@ public class Inventory {
         }
     }
     
+    /**
+     * Look for a part in the parts collection
+     * @param id The Part ID
+     * @return The Part found in the collection or null when the part is not found
+     */
     public Part lookupPart(int id) 
     {
         /* Reference to the part found on the search */
@@ -118,6 +161,11 @@ public class Inventory {
         return foundPart;
     }
     
+    /**
+     * Look for a part in the parts collection
+     * @param name The Part Name (a partial description is also accepted, no wildcards needed)
+     * @return The Part found in the collection or null when the part is not found
+     */
     public Part lookupPart(String name)
     {
         /* Reference to the part found on the search */
@@ -126,8 +174,9 @@ public class Inventory {
         /* Loop thru all rows inside the parts collection */
         for (int i = 0; i < _parts.size(); i++)
         {
-            if (_parts.get(i).getName().equals(name))
-            {
+            /* Check if the description contains the input string */
+            if (_parts.get(i).getName().toUpperCase().contains(name.toUpperCase()))
+            {                
                 foundPart = _parts.get(i);
                 break;
             }
@@ -145,5 +194,18 @@ public class Inventory {
     public void updatePart(int id) {
         /* This method has no use */
     }
+    
+
+    /**
+     * Replaces a part in the Part Collection
+     * @param originalPart      Reference to the Original Part
+     * @param newPart           Reference to the New Part
+     */
+    public void replacePart(Part originalPart, Part newPart)
+    {
+        _parts.add(_parts.indexOf(originalPart), newPart);
+        _parts.remove(originalPart);
+    }
+    
     
 }

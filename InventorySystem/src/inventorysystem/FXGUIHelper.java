@@ -5,16 +5,16 @@
  */
 package inventorysystem;
 
-import inventorysystem.screens.FXScreen;
+import java.util.Optional;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 /**
  * Provide static methods to create JavaFX screen objects and instantiate scenes.
@@ -105,39 +105,21 @@ public class FXGUIHelper {
         return pane;
     }
     
-    public static Stage createStage(FXScreen screen)
+    /**
+     * Generates a Confirmation Box using the Alert class
+     * @param title             The Window Title
+     * @param headerText        The Header Text
+     * @param contentText       The Content Text
+     * @return                  A Optional<ButtonType> with the return of the Alert
+     */
+    public static Optional<ButtonType> ConfirmationBox(String title, String headerText, String contentText) 
     {
-        return createStage(screen, false);
-    }
-    
-    public static Stage createStage(FXScreen screen, boolean resizeable)
-    {
-        return createStage(screen, resizeable, null);
-    }
-    
-    public static Stage createStage(FXScreen screen, boolean resizeable, Stage parentStage)
-    {
-        /* Make sure there is a valid screen */
-        if (screen == null) return null;
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         
-        /* Create the Stage */
-        Stage newStage = new Stage();
-        newStage.setTitle(screen.getTitle());
-        
-        /* Create the Scene */
-        newStage.setScene(screen.getScene());
-        newStage.setResizable(resizeable);
-        
-        /* Set Modal */
-        if (parentStage != null)
-        {
-            newStage.initOwner(parentStage);
-            newStage.initModality(Modality.WINDOW_MODAL);
-        }                   
-        
-        /* Set the Screen Stage */
-        screen.setCurrentStage(newStage);
-
-        return newStage;
+        return alert.showAndWait();
     }
 }
