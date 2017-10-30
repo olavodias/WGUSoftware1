@@ -19,12 +19,12 @@ public abstract class Part {
     /******************************************
      * Define Properties for Data Binding
      ******************************************/
-    public final SimpleIntegerProperty idProperty = new SimpleIntegerProperty(0);
-    public final SimpleStringProperty nameProperty = new SimpleStringProperty("");
-    public final SimpleDoubleProperty priceProperty = new SimpleDoubleProperty(0);
-    public final SimpleIntegerProperty inStockProperty = new SimpleIntegerProperty(0);
-    public final SimpleIntegerProperty minProperty = new SimpleIntegerProperty(0);
-    public final SimpleIntegerProperty maxProperty = new SimpleIntegerProperty(0);
+    private final SimpleIntegerProperty idProperty = new SimpleIntegerProperty(0);
+    private final SimpleStringProperty nameProperty = new SimpleStringProperty("");
+    private final SimpleDoubleProperty priceProperty = new SimpleDoubleProperty(0);
+    private final SimpleIntegerProperty inStockProperty = new SimpleIntegerProperty(0);
+    private final SimpleIntegerProperty minProperty = new SimpleIntegerProperty(0);
+    private final SimpleIntegerProperty maxProperty = new SimpleIntegerProperty(0);
     
     /******************************************
      * Property Getters/Setters

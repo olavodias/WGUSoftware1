@@ -110,7 +110,7 @@ public class FXGUIHelper {
      * @param title             The Window Title
      * @param headerText        The Header Text
      * @param contentText       The Content Text
-     * @return                  A Optional<ButtonType> with the return of the Alert
+     * @return                  A Optional ButtonType with the return of the Alert
      */
     public static Optional<ButtonType> ConfirmationBox(String title, String headerText, String contentText) 
     {
@@ -121,5 +121,22 @@ public class FXGUIHelper {
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         
         return alert.showAndWait();
+    }
+    
+    /**
+     * Shows an Error Box
+     * @param title             The Window Title
+     * @param headerText        The Header Text
+     * @param contentText       The Content Text
+     */
+    public static void ErrorBox(String title, String headerText, String contentText)
+    {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        
+        alert.showAndWait();
     }
 }

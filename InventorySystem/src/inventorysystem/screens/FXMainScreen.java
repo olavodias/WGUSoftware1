@@ -245,8 +245,14 @@ public class FXMainScreen extends FXScreen {
             if (part != null) 
                 /* Select it on the TableView */
                 tableParts.getSelectionModel().select(part);
+            else
+            {
+                /* Show alert that no data was found */
+                FXGUIHelper.ErrorBox(DEFAULTTITLE, "No Parts were found", String.format("No Parts could be found with the given criteria ('%s').", searchName));
+            }
         });
         
+        /* Add Objects to the GridPane */
         searchBarGridPane.add(lblSearch, 0, 0);
         searchBarGridPane.add(txtSearch, 1, 0);
         searchBarGridPane.add(btnSearch, 2, 0);
