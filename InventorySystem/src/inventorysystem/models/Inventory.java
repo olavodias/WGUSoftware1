@@ -72,6 +72,30 @@ public class Inventory {
         else
             return _nextPartID;
     }
+
+    private int _nextProductID;
+    
+    /**
+     * Returns the next product id to use and increment the next number
+     * @return An integer containing the next part ID
+     */
+    public int getNextProductID() {
+        return getNextProductID(true);
+    }
+    
+    /**
+     * Returns the next product id to use
+     * @param autoIncrement A boolean to define whether to increment the next number or not
+     * @return An integer containing the next part ID
+     */
+    public int getNextProductID(boolean autoIncrement) {
+        
+        /* Checks whether to increment or not the part id */
+        if (autoIncrement)
+            return _nextProductID++;
+        else
+            return _nextProductID;
+    }
     
     /**
      * Initializes a new instance of the Inventory Management
@@ -83,12 +107,17 @@ public class Inventory {
         _products = FXCollections.observableArrayList();
         _parts = FXCollections.observableArrayList();
         
-        /* Initialize the Part ID */
+        /* Initialize the Next Numbers */
         _nextPartID = 1;
+        _nextProductID = 1;
     }
     
+    /**
+     * Adds a product to the collection
+     * @param product The Product to be added
+     */
     public void addProduct(Product product) {
-        
+        _products.add(product);
     }
     
     public boolean removeProduct(int id) {

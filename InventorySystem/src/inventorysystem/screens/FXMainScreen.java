@@ -8,6 +8,7 @@ package inventorysystem.screens;
 import inventorysystem.FXGUIHelper;
 import inventorysystem.models.Inventory;
 import inventorysystem.models.Part;
+import inventorysystem.models.Product;
 import java.util.Optional;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -43,6 +44,7 @@ public class FXMainScreen extends FXScreen {
     
     /* UI Elements to be shared accoss the Form */
     TableView<Part> tableParts = new TableView();
+    TableView<Product> tableProducts = new TableView();
     
     /**
      * Initializes a new FXMainScreen
@@ -127,11 +129,8 @@ public class FXMainScreen extends FXScreen {
         /***************************************
          * Right Panel
          **************************************/
-        Label lblTeste2 = new Label();
-        lblTeste2.setText("Testing");
-
         BorderPane paneProducts = FXGUIHelper.createTitledPanel("Products", 
-                                                                lblTeste2, 
+                                                                this.createProductsPaneDetails(), 
                                                                 (super.isStyled() ? "darkblue-titledpane" : ""));
 
         /***************************************
@@ -400,6 +399,240 @@ public class FXMainScreen extends FXScreen {
         partsPane.setBottom(actionsBarGridPane);
         
         return partsPane;
+    }
+
+    /**
+     * Creates the Products Border Pane (the screen where the parts will be displayed).
+     *      * 
+     * @return      A BorderPane with all JavaFX objects composing the Products display.
+     */
+    private BorderPane createProductsPaneDetails()
+    {
+        /**********************************************
+         * BorderPane to display the contents 
+         **********************************************/
+        BorderPane productsPane = new BorderPane();
+        
+        /**********************************************
+         * Search Bar 
+         **********************************************/
+        GridPane searchBarGridPane = new GridPane();
+        searchBarGridPane.setHgap(8);
+        searchBarGridPane.setPadding(new Insets(6, 6, 6, 6));
+
+        ColumnConstraints[] colConstraints = new ColumnConstraints[3];
+
+        colConstraints[0] = new ColumnConstraints();
+        colConstraints[0].setPercentWidth(20);
+        colConstraints[0].setHalignment(HPos.RIGHT);
+        
+        colConstraints[1] = new ColumnConstraints();
+        colConstraints[1].setPercentWidth(66);
+        
+        colConstraints[2] = new ColumnConstraints();
+        colConstraints[2].setPercentWidth(14);
+        
+        searchBarGridPane.getColumnConstraints().addAll(colConstraints);
+        
+        /* Add Search Bar Contents */
+        Label lblSearch = new Label();
+        lblSearch.setText("Search:");
+        
+        TextField txtSearch = new TextField();
+        
+        Button btnSearch = new Button();
+        btnSearch.setText("Go");
+        btnSearch.setOnAction((ActionEvent event) -> { 
+        
+            /* Do nothing if there is nothing on the search textfield */
+            if (txtSearch.getText().trim().equals("")) return;
+            
+            /* Define Variables */
+            int searchID = 0;
+            String searchName = "";
+            Part part;
+            
+            /* Check if the search criteria is numeric */
+            try
+            {
+                /* Try to parse it to integer */
+                searchID = Integer.parseInt(txtSearch.getText());
+                
+                /* Search for the Part ID */
+                part = Inventory.getInstance().lookupPart(searchID);
+                if (part != null) {
+                    /* Select it on the TableView and exit */
+                    tableParts.getSelectionModel().select(part);
+                    return;
+                }
+            }
+            catch (NumberFormatException e)
+            {
+                /* This is not a numeric field, do nothing */
+            }
+            
+            /* Search for text */
+            searchName = txtSearch.getText().trim();
+            
+            part = Inventory.getInstance().lookupPart(searchName);
+            if (part != null) 
+                /* Select it on the TableView */
+                tableParts.getSelectionModel().select(part);
+            else
+            {
+                /* Show alert that no data was found */
+                FXGUIHelper.ErrorBox(DEFAULTTITLE, "No Parts were found", String.format("No Parts could be found with the given criteria ('%s').", searchName));
+            }
+        });
+        
+        /* Add Objects to the GridPane */
+        searchBarGridPane.add(lblSearch, 0, 0);
+        searchBarGridPane.add(txtSearch, 1, 0);
+        searchBarGridPane.add(btnSearch, 2, 0);
+
+        /**********************************************
+         * Actions Bar 
+         **********************************************/
+        GridPane actionsBarGridPane = new GridPane();
+        actionsBarGridPane.setPadding(new Insets(6, 6, 6, 6));
+        
+        ColumnConstraints[] colConstraintsActionBar = new ColumnConstraints[3];
+        
+        colConstraintsActionBar[0] = new ColumnConstraints();
+        colConstraintsActionBar[0].setPercentWidth(33);
+        colConstraintsActionBar[0].setHalignment(HPos.CENTER);
+        
+        colConstraintsActionBar[1] = new ColumnConstraints();
+        colConstraintsActionBar[1].setPercentWidth(34);
+        colConstraintsActionBar[1].setHalignment(HPos.CENTER);
+        
+        colConstraintsActionBar[2] = new ColumnConstraints();
+        colConstraintsActionBar[2].setPercentWidth(33);
+        colConstraintsActionBar[2].setHalignment(HPos.CENTER);
+        
+        actionsBarGridPane.getColumnConstraints().addAll(colConstraintsActionBar);
+        
+        /* Add Action Bar Contents */
+        Button btnActionAdd = new Button();
+        btnActionAdd.setText("Add");
+        btnActionAdd.setPrefSize(130, 20);
+        btnActionAdd.setOnAction((ActionEvent e) -> {
+            /* Create the FXPartSetupScreen at Add Mode and show it */
+            FXProductSetupScreen newForm = new FXProductSetupScreen(getCssPath());
+            
+            /* Show screen and, if user clicked ok, save it */
+            if (newForm.show(getCurrentStage()) == FXScreenResult.OK)
+                Inventory.getInstance().addProduct(newForm.getModifiedProduct());
+            else
+                e.consume();
+        });
+        
+        if (super.isStyled())
+            btnActionAdd.getStyleClass().add("darkblue-button");
+
+        Button btnActionModify = new Button();
+        btnActionModify.setText("Modify");
+        btnActionModify.setPrefSize(130, 20);        
+        btnActionModify.setOnAction((ActionEvent e) -> {
+            
+            /* Retrieve Selected Item */
+            if (tableParts.getSelectionModel().getSelectedItem() == null) {
+                e.consume();
+                return;
+            }
+                
+            Part originalProduct = (Part)tableParts.getSelectionModel().getSelectedItem();
+            
+            /* Create the FXPartSetupScreen at Modify Mode and show it */            
+            FXPartSetupScreen newForm = new FXPartSetupScreen(originalProduct,
+                                                              getCssPath());
+            
+            /* Show screen and, if user clicked ok, change it on the collection */
+            if (newForm.show(getCurrentStage()) == FXScreenResult.OK)
+                Inventory.getInstance().replacePart(originalProduct, newForm.getModifiedPart());
+            else
+                e.consume();
+        });
+        
+        if (super.isStyled())
+            btnActionModify.getStyleClass().add("darkblue-button");
+
+        Button btnActionDelete = new Button();
+        btnActionDelete.setText("Delete");
+        btnActionDelete.setPrefSize(130, 20);
+        btnActionDelete.setOnAction((ActionEvent e) -> { 
+        
+            /* Retrieve Selected Item */
+            if (tableParts.getSelectionModel().getSelectedItem() == null) {
+                e.consume();
+                return;
+            }
+                
+            Part originalPart = (Part)tableParts.getSelectionModel().getSelectedItem();
+            
+            /* Display alert to ask for confirmation */
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Part");
+            alert.setHeaderText("Are you sure?");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.setContentText(String.format("You are about to remote item %d (%s) from your parts collection...", originalPart.getPartID(), originalPart.getName()));
+            
+            /* Process Confirmation Result */
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK)
+                Inventory.getInstance().deletePart(originalPart);
+            else
+                e.consume();
+        });
+        
+        actionsBarGridPane.add(btnActionAdd, 0, 0);
+        actionsBarGridPane.add(btnActionModify, 1, 0);
+        actionsBarGridPane.add(btnActionDelete, 2, 0);
+
+        if (super.isStyled())
+            btnActionDelete.getStyleClass().add("darkblue-button");
+        
+        /**********************************************
+         * Table View
+         **********************************************/
+        tableProducts = new TableView<>(Inventory.getInstance().getProducts());
+        tableProducts.setEditable(false);
+        
+        /* Define Columns */
+
+        /* Column 01: Product ID */
+        TableColumn<Product, String> tColProductID = new TableColumn<>("Product ID");
+        tColProductID.setCellValueFactory(new PropertyValueFactory<>("productID"));
+        tColProductID.setMinWidth(55);
+
+        /* Column 02: Product Name */
+        TableColumn<Product, String> tColProductName = new TableColumn<>("Product Name");
+        tColProductName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        tColProductName.setMinWidth(95);
+        
+        /* Column 03: Inventory Level */
+        TableColumn<Product, Integer> tColInventoryLevel = new TableColumn<>("Inventory Level");
+        tColInventoryLevel.setCellValueFactory(new PropertyValueFactory<>("inStock"));
+        tColInventoryLevel.setMinWidth(130);
+
+        /* Column 04: Price/Cost per Unit */
+        TableColumn<Product, Double> tColPriceCost = new TableColumn<>("Price/Cost per Unit");
+        tColPriceCost.setCellValueFactory(new PropertyValueFactory<>("price"));
+        tColPriceCost.setMinWidth(150);
+        
+        tableProducts.getColumns().addAll(tColProductID,
+                                          tColProductName,
+                                          tColInventoryLevel,
+                                          tColPriceCost);
+        
+        /**********************************************
+         * Finalize (Add all objects together)
+         **********************************************/
+        productsPane.setTop(searchBarGridPane);
+        productsPane.setCenter(tableProducts);
+        productsPane.setBottom(actionsBarGridPane);
+        
+        return productsPane;
     }
     
 }

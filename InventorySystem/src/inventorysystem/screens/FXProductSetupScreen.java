@@ -7,48 +7,39 @@ package inventorysystem.screens;
 
 import inventorysystem.FXGUIHelper;
 import inventorysystem.exceptions.FXFormInputException;
-import inventorysystem.models.InHousePart;
 import inventorysystem.models.Inventory;
-import inventorysystem.models.OutsourcedPart;
 import inventorysystem.models.Part;
+import inventorysystem.models.Product;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.RowConstraints;
 
 /**
- * Represents the screen to Add/Modify Parts
- * 
- * @author Olavo Henrique Dias
+ *
+ * @author java
  */
-public class FXPartSetupScreen extends FXMultiModeScreen {
+public class FXProductSetupScreen extends FXMultiModeScreen {
     
     /* The default name for this form */
-    private static final String DEFAULTTITLE = "Part Management";
+    private static final String DEFAULTTITLE = "Product Management";
     
     /***************************************************************************
      * Shared UI Fields (to be used by multiple methods)
      **************************************************************************/
-
-    /* Radio Button - InHouse / Outsourced */
-    final ToggleGroup groupPartType = new ToggleGroup();
-
-    RadioButton rbInHouse = new RadioButton();
-    RadioButton rbOutsourced = new RadioButton();
-    
     /* Field: ID */
     Label lblField_ID = new Label();
     TextField txtField_ID = new TextField();
@@ -72,44 +63,36 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
     /* Field: Inventory Minimum */
     Label lblField_InvMin = new Label();
     TextField txtField_InvMin = new TextField();
-
-    /* Machine ID */
-    Label lblField_MachineID = new Label();
-    TextField txtField_MachineID = new TextField();
-
-    /* Company Name */
-    Label lblField_CompanyName = new Label();
-    TextField txtField_CompanyName = new TextField();
-
+    
     /***************************************************************************
      * Properties
      **************************************************************************/
-    protected final Part _originalPart;
+    protected final Product _originalProduct;
     
     /**
-     * Returns the Original Part
-     * @return The Original Part
+     * Returns the Original Product
+     * @return The Original Product
      */
-    public Part getOriginalPart() {
-        return _originalPart;
+    public Product getOriginalProduct() {
+        return _originalProduct;
     }
 
-    private Part _modifiedPart;
+    private Product _modifiedProduct;
     
     /**
-     * Returns the Modified Part
-     * @return The Modified Part
+     * Returns the Modified Product
+     * @return The Modified Product
      */
-    public Part getModifiedPart() {
-        return _modifiedPart;
+    public Product getModifiedProduct() {
+        return _modifiedProduct;
     }
     
     /**
-     * Sets the Modified Part
-     * @param modifiedPart   The Modified Part
+     * Sets the Modified Product
+     * @param modifiedProduct   The Modified Product
      */
-    protected void setModifiedPart(Part modifiedPart) {
-        _modifiedPart = modifiedPart;
+    protected void setModifiedProduct(Product modifiedProduct) {
+        _modifiedProduct = modifiedProduct;
     }
     
     /***************************************************************************
@@ -119,7 +102,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
     /**
      * Initializes a new instance of the FXPartSetup Screen in Add Mode
      */
-    public FXPartSetupScreen()
+    public FXProductSetupScreen()
     {
         /* Initialize the screen in Add Mode */
         this("");
@@ -129,7 +112,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
      * Initializes a new instance of the FXPartSetup Screen in Add Mode
      * @param cssPath       The CSS File Path
      */
-    public FXPartSetupScreen(String cssPath)
+    public FXProductSetupScreen(String cssPath)
     {
         /* Initialize the screen in Add Mode */
         this(cssPath, DEFAULTTITLE);
@@ -140,7 +123,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
      * @param cssPath       The CSS File Path
      * @param title         The Screen Title
      */
-    public FXPartSetupScreen(String cssPath, String title)
+    public FXProductSetupScreen(String cssPath, String title)
     {
         /* Initialize the screen in Add Mode */
         this(FXMode.ADD, null, cssPath, title);
@@ -148,53 +131,53 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
     
     /**
      * Initializes a new instance of the FXPartSetup Screen in Modify Mode
-     * @param part          The part to edit
+     * @param product          The part to edit
      */
-    public FXPartSetupScreen(Part part)
+    public FXProductSetupScreen(Product product)
     {
         /* Initialize the screen in Modify Mode */
-        this(part, "");
+        this(product, "");
     }
     
     
     /**
      * Initializes a new instance of the FXPartSetup Screen in Modify Mode
-     * @param part          The part to edit
+     * @param product          The part to edit
      * @param cssPath       The CSS File Path
      */
-    public FXPartSetupScreen(Part part, String cssPath)
+    public FXProductSetupScreen(Product product, String cssPath)
     {
         /* Initialize the screen in Modify Mode */
-        this(part, cssPath, DEFAULTTITLE);
+        this(product, cssPath, DEFAULTTITLE);
     }
 
     /**
      * Initializes a new instance of the FXPartSetup Screen in Modify Mode
-     * @param part          The part to edit
+     * @param product          The part to edit
      * @param cssPath       The CSS File Path
      * @param title         The Screen Title
      */
-    public FXPartSetupScreen(Part part, String cssPath, String title)
+    public FXProductSetupScreen(Product product, String cssPath, String title)
     {
         /* Initialize the screen in Modify Mode */
-        this(FXMode.MODIFY, part, cssPath, title);
+        this(FXMode.MODIFY, product, cssPath, title);
     }
     
     /**
      * Initializes a new instance of the FXPartSetup Screen
      * @param mode          The Form Mode (ADD or MODIFY)
-     * @param part          The part to edit
+     * @param product          The part to edit
      * @param cssPath       The CSS File Path
      * @param title         The Screen Title
      */
-    protected FXPartSetupScreen(FXMode mode, Part part, String cssPath, String title)
+    protected FXProductSetupScreen(FXMode mode, Product product, String cssPath, String title)
     {
         /* Initialize Base */
         super(mode, cssPath, title);
-        super.setSize(400, 350);
+        super.setSize(900, 450);
         
         /* Set the Part Number */
-        _originalPart = part;
+        _originalProduct = product;
         
         /* Create the Scene */
         this.createScene();
@@ -214,9 +197,9 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         Label lblHeader_Title = new Label();
         
         if (super.getMode() == FXMode.ADD)
-            lblHeader_Title.setText("Add Parts");
+            lblHeader_Title.setText("Add Products");
         else 
-            lblHeader_Title.setText("Modify Parts");
+            lblHeader_Title.setText("Modify Products");
         
         lblHeader_Title.getStyleClass().add("darkblue-windowsmall-title-text");
         
@@ -269,26 +252,27 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
          * Center
          *****************************************/
         
-        /* Radio Button - InHouse / Outsourced */
-        rbInHouse = new RadioButton();
-        rbInHouse.setToggleGroup(groupPartType);
-        rbInHouse.setText("In-House");
-        rbInHouse.setOnAction((ActionEvent e) -> { 
-            setPartMode(FXPartMode.INHOUSE);
-        });
+        /* Grid to split screen into two columns */
+        GridPane gridSplit = new GridPane();
+        gridSplit.setAlignment(Pos.CENTER);
+        gridSplit.setPadding(new Insets(6, 6, 6, 6));
         
-        rbOutsourced = new RadioButton();
-        rbOutsourced.setToggleGroup(groupPartType);
-        rbOutsourced.setText("Outsourced");
-        rbOutsourced.setOnAction((ActionEvent e) -> { 
-            setPartMode(FXPartMode.OUTSOURCED);
-        });
+        ColumnConstraints[] colConstraintsGridSplit = new ColumnConstraints[2];
         
-        HBox rbContainer = new HBox();
-        rbContainer.setSpacing(10);
-        rbContainer.setAlignment(Pos.CENTER);
-        rbContainer.getChildren().addAll(rbInHouse, rbOutsourced);
-
+        colConstraintsGridSplit[0] = new ColumnConstraints();
+        colConstraintsGridSplit[0].setPercentWidth(40);
+        colConstraintsGridSplit[0].setHalignment(HPos.CENTER);
+        
+        colConstraintsGridSplit[1] = new ColumnConstraints();
+        colConstraintsGridSplit[1].setPercentWidth(60);
+        colConstraintsGridSplit[1].setHalignment(HPos.CENTER);
+        
+        gridSplit.getColumnConstraints().addAll(colConstraintsGridSplit);
+        
+        /******************************************
+         * Center - Column 1
+         *****************************************/
+        
         /* ****** Fields ****** */
         
         /* Field: ID */
@@ -322,16 +306,6 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         lblField_InvMin.setText("Min");
         txtField_InvMin = new TextField();
 
-        /* Field: Machine ID (For In-House Parts) */
-        lblField_MachineID = new Label();
-        lblField_MachineID.setText("Machine ID");
-        txtField_MachineID = new TextField();
-
-        /* Field: Company Name (For Outsourced Parts) */
-        lblField_CompanyName = new Label();
-        lblField_CompanyName.setText("Company Name");
-        txtField_CompanyName = new TextField();
-        
         /* ****** Grid ****** */
         int iGridCenterRow = 0;
         GridPane gridCenter = new GridPane();
@@ -352,9 +326,6 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         columns[3] = new ColumnConstraints(70);
         
         gridCenter.getColumnConstraints().addAll(columns);
-        
-        /* InHouse / Outsourced Radio Buttons */
-        gridCenter.add(rbContainer, 0, iGridCenterRow, 4, 1);
         
         /* ID */
         iGridCenterRow++;
@@ -384,21 +355,43 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         gridCenter.add(lblField_InvMin, 2, iGridCenterRow);
         gridCenter.add(txtField_InvMin, 3, iGridCenterRow);
         
-        /* Machine ID (For InHouse Parts) */
-        iGridCenterRow++;
-        gridCenter.add(lblField_MachineID, 0, iGridCenterRow);
-        gridCenter.add(txtField_MachineID, 1, iGridCenterRow, 3, 1);
+        /* Add objects to the GridSplit */
+        gridSplit.add(gridCenter, 0, 0);
+        
+        /******************************************
+         * Center - Column 2
+         *****************************************/
+        /* Create the grid to allocate two table views */
+        GridPane gridCenterParts = new GridPane();
+        gridCenterParts.setAlignment(Pos.CENTER);
+        gridCenterParts.setPadding(new Insets(6, 6, 6, 6));
+        
+        RowConstraints[] rowConstraintsGridSplitParts = new RowConstraints[2];
+        
+        rowConstraintsGridSplitParts[0] = new RowConstraints();
+        rowConstraintsGridSplitParts[0].setPercentHeight(50);
+        rowConstraintsGridSplitParts[0].setValignment(VPos.CENTER);
 
-        /* Company Name (For Outsourced Parts) */
-        gridCenter.add(lblField_CompanyName, 0, iGridCenterRow);
-        gridCenter.add(txtField_CompanyName, 1, iGridCenterRow, 3, 1);
+        rowConstraintsGridSplitParts[1] = new RowConstraints();
+        rowConstraintsGridSplitParts[1].setPercentHeight(50);
+        rowConstraintsGridSplitParts[1].setValignment(VPos.CENTER);        
+        
+        gridCenterParts.getRowConstraints().addAll(rowConstraintsGridSplitParts);
+        
+        Label lbl1 = new Label("Label1");
+        Label lbl2 = new Label("Label2");
+        
+        gridCenterParts.add(lbl1, 0, 0);
+        gridCenterParts.add(lbl2, 0, 1);
+        
+        gridSplit.add(gridCenterParts, 1, 0);
         
         /***********************************************************************
          * Border Pane
          **********************************************************************/
         BorderPane border = new BorderPane();
         border.setTop(hBoxHeader);
-        border.setCenter(gridCenter);
+        border.setCenter(gridSplit);
         border.setBottom(hBoxFooter);
 
         /***********************************************************************
@@ -411,62 +404,20 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
          * Load Original Part when Mode is Modify
          **********************************************************************/
         if (super.getMode() == FXMode.MODIFY) {
-            txtField_ID.setText(Integer.toString(_originalPart.getPartID()));
-            txtField_Name.setText(_originalPart.getName());
-            txtField_Inv.setText(Integer.toString(_originalPart.getInStock()));
-            txtField_PriceCost.setText(Double.toString(_originalPart.getPrice()));
-            txtField_InvMax.setText(Integer.toString(_originalPart.getMax()));
-            txtField_InvMin.setText(Integer.toString(_originalPart.getMin()));
-            
-            if (_originalPart.getClass() == InHousePart.class) 
-            {
-                txtField_MachineID.setText(Integer.toString(((InHousePart)_originalPart).getMachineID()));
-                groupPartType.selectToggle(rbInHouse);
-                setPartMode(FXPartMode.INHOUSE);
-            }
-            else 
-            {
-                txtField_CompanyName.setText(((OutsourcedPart)_originalPart).getCompanyName());
-                groupPartType.selectToggle(rbOutsourced);
-                setPartMode(FXPartMode.OUTSOURCED);
-            }
+            txtField_ID.setText(Integer.toString(_originalProduct.getProductID()));
+            txtField_Name.setText(_originalProduct.getName());
+            txtField_Inv.setText(Integer.toString(_originalProduct.getInStock()));
+            txtField_PriceCost.setText(Double.toString(_originalProduct.getPrice()));
+            txtField_InvMax.setText(Integer.toString(_originalProduct.getMax()));
+            txtField_InvMin.setText(Integer.toString(_originalProduct.getMin()));
         }
         else
         {
-            txtField_ID.setText(Integer.toString(Inventory.getInstance().getNextPartID(false)));
-            groupPartType.selectToggle(rbInHouse);
-            setPartMode(FXPartMode.INHOUSE);
+            txtField_ID.setText(Integer.toString(Inventory.getInstance().getNextProductID(false)));
         }
         
         /* Focus on the Name Field */
         txtField_Name.requestFocus();
-    }
-    
-    /**
-     * Method to configure the screen fields based on the mode
-     * 
-     * @param mode A FXPartMode to define whether the mode in "InHouse" or "Outsourced"
-     */
-    public void setPartMode(FXPartMode mode)
-    {
-        if (mode == FXPartMode.INHOUSE)
-        {
-            /* InHouse Parts - Show Machine ID / Hide Company Name */
-            lblField_MachineID.setVisible(true);
-            txtField_MachineID.setVisible(true);
-            
-            lblField_CompanyName.setVisible(false);
-            txtField_CompanyName.setVisible(false);
-        }
-        else
-        {
-            /* Outsourced Parts - Hide Machine ID / Show Company Name */
-            lblField_MachineID.setVisible(false);
-            txtField_MachineID.setVisible(false);
-            
-            lblField_CompanyName.setVisible(true);
-            txtField_CompanyName.setVisible(true);
-        }
     }
     
     /**
@@ -478,63 +429,22 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         try
         {
             /* Defines the Temporary Part Number */
-            Part _tempPart;
+            Product _tempProduct = new Product();
             
-            /* Creates a new object with the information on the screen */
-            if (groupPartType.getSelectedToggle().equals(rbInHouse))
-            {
-                /* This is an InHouse Part */
-                _tempPart = new InHousePart();
-
-                /* Validate Machine ID - It has to be an integer */
-                try
-                {
-                    if (txtField_MachineID.getText().trim().equals(""))
-                    {
-                        /* There is nothing on the Machine ID, set to Zero */
-                        ((InHousePart)_tempPart).setMachineID(0);
-                    }
-                    else
-                    {
-                        /* Try to parte the value to an integer */
-                        ((InHousePart)_tempPart).setMachineID(Integer.parseInt(txtField_MachineID.getText().trim()));
-                    }
-                }
-                catch (NumberFormatException e)
-                {
-                    /* Throws the exception to the next catch block */
-                    throw new FXFormInputException("Enter a valid MachineID, it has to be a numeric value.",
-                                                   "Invalid Machine ID",
-                                                   txtField_MachineID);
-                }
-                catch (Exception e)
-                {
-                    /* Any random exception */
-                    throw e;
-                }
-            }
-            else
-            {
-                /* This is an Outsourced Part */
-                _tempPart = new OutsourcedPart();
-
-                ((OutsourcedPart)_tempPart).setCompanyName(txtField_CompanyName.getText().trim());
-            }
-
             /* Perform Input Validation and Set Values */
 
             /* Name */
             if (txtField_Name.getText().trim().equals(""))
-                throw new FXFormInputException("The Part Name cannot be blank.", 
-                                               "Invalid Part Name",
+                throw new FXFormInputException("The Product Name cannot be blank.", 
+                                               "Invalid Product Name",
                                                txtField_Name);
             
-            _tempPart.setName(txtField_Name.getText().trim());
+            _tempProduct.setName(txtField_Name.getText().trim());
             
             /* Inventory */
             try
             {
-                _tempPart.setInStock(Integer.parseInt(txtField_Inv.getText()));
+                _tempProduct.setInStock(Integer.parseInt(txtField_Inv.getText()));
             }
             catch (NumberFormatException e)
             {
@@ -547,7 +457,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
             /* Price */
             try
             {
-                _tempPart.setPrice(Double.parseDouble(txtField_PriceCost.getText()));
+                _tempProduct.setPrice(Double.parseDouble(txtField_PriceCost.getText()));
             }
             catch (NumberFormatException e)
             {
@@ -560,7 +470,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
             /* Maximum Inventory */
             try
             {
-                _tempPart.setMax(Integer.parseInt(txtField_InvMax.getText()));
+                _tempProduct.setMax(Integer.parseInt(txtField_InvMax.getText()));
             }
             catch (NumberFormatException e)
             {
@@ -573,7 +483,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
             /* Minimum Inventory */
             try
             {
-                _tempPart.setMin(Integer.parseInt(txtField_InvMin.getText()));
+                _tempProduct.setMin(Integer.parseInt(txtField_InvMin.getText()));
             }
             catch (NumberFormatException e)
             {
@@ -586,14 +496,14 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
             /* Perform Data Validation */
             
             /* Inventory cannot be greater than the maximum value or lower than the minimum value */
-            if (_tempPart.getInStock() > _tempPart.getMax()) {
+            if (_tempProduct.getInStock() > _tempProduct.getMax()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("Inventory cannot be greater than Maximum Inventory.", 
                                                "Inventory Quantity Validation",
                                                txtField_Inv);
             }
 
-            if (_tempPart.getInStock() < _tempPart.getMin()) {
+            if (_tempProduct.getInStock() < _tempProduct.getMin()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("Inventory cannot be less than Minimum Inventory.", 
                                                "Inventory Quantity Validation",
@@ -601,7 +511,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
             }
             
             /* Minimum cannot be greater than Maximum */
-            if (_tempPart.getMin() > _tempPart.getMax()) {
+            if (_tempProduct.getMin() > _tempProduct.getMax()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("Minimum quantity cannot be greater than the Maximum Quantity.", 
                                                "Minimum Quantity Validation",
@@ -609,22 +519,30 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
             }
 
             /* Maximum cannot be less than Maximum */
-            if (_tempPart.getMax() < _tempPart.getMin()) {
+            if (_tempProduct.getMax() < _tempProduct.getMin()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("Maximum quantity cannot be less than the Minimum Quantity.", 
                                                "Maximum Quantity Validation",
                                                txtField_InvMax);
             }
             
+            /* Check Product Price greater than Components Price */
+            if (_tempProduct.getPrice() < _tempProduct.getTotalComponentsPrice()) {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException(String.format("The Product Price is %f , which is lower than the total components price of %f", _tempProduct.getPrice(), _tempProduct.getTotalComponentsPrice()), 
+                                               "Price Validation",
+                                               txtField_PriceCost);
+            }
+            
             /* Sets the Result to "OK" and close screen */
 
             /* Part ID */
             if (super.getMode() == FXMode.ADD)
-                _tempPart.setPartID(Inventory.getInstance().getNextPartID()); /* Do not use the one on the screen */
+                _tempProduct.setProductID(Inventory.getInstance().getNextProductID()); /* Do not use the one on the screen */
             else
-                _tempPart.setPartID(_originalPart.getPartID());
+                _tempProduct.setProductID(_originalProduct.getProductID());
             
-            setModifiedPart(_tempPart);
+            setModifiedProduct(_tempProduct);
             setResult(FXScreenResult.OK);
             getCurrentStage().close();
         }
