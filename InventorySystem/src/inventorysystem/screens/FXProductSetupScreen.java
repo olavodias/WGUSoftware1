@@ -813,7 +813,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         /**********************************************
          * Table View
          **********************************************/
-        tableProductParts = new TableView<>(Inventory.getInstance().getAllParts());
+        tableProductParts = new TableView<>(_modifiedProduct.getAssociatedParts());
         tableProductParts.setEditable(false);
         
         /* Define Columns */
@@ -851,5 +851,4 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         
         return partsPane;
     }
-    
 }
