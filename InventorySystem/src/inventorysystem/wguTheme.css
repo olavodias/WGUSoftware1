@@ -1,0 +1,136 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Oct 31, 2017, 12:03:28 AM
+    Author     : Olavo Henrique Dias
+*/
+
+/* This CSS is used to give the application the same look and feel of WGU website */
+
+.root {
+    -fx-background-color: white;    
+}
+
+/*******************************************************************************
+ * Buttons 
+ ******************************************************************************/
+
+/* Regular Blue Button */
+.button {
+    -fx-text-fill: white;
+    -fx-background-color: #002f51;
+}
+
+/* Yellow/Orange Button */
+.button-type1 {
+    -fx-text-fill: #002f51;
+    -fx-background-color: #ffcc5b;
+    -fx-border-color: #002f51;
+}
+
+.button-type1:hover {
+    -fx-background-color: #e7bb59;
+}
+
+.button-type2 {
+    -fx-text-fill: white;
+    -fx-background-color: #3c87af;
+}
+
+.button-type3 {
+    -fx-text-fill: white;
+    -fx-background-color: #126eb7;
+}
+
+
+.button, .button-type1, .button-type2, .button-type3 {
+    -fx-background-insets: 1;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+}
+
+/*******************************************************************************
+ * Labels 
+ ******************************************************************************/
+
+.label {
+    
+}
+
+.label-header {
+    -fx-text-fill: #333;
+    -fx-font: 22px Tahoma;
+    -fx-font-weight: bold;
+}
+
+.label-header-small {
+    -fx-text-fill: #333;
+    -fx-font: 16px Tahoma;
+    -fx-font-weight: bold;
+}
+
+/*******************************************************************************
+ * HBoxes / VBOxes
+ ******************************************************************************/
+.hbox-header {
+    -fx-border-width: 0 0 9 0;
+}
+
+.hbox-header-small {
+    -fx-border-width: 0 0 5 0;
+}
+
+.hbox-header, .hbox-header-small {
+    -fx-background-color: 
+        #e9e6d9,
+        linear-gradient(#f5f3ed, #e9e6d9);
+    -fx-border-color: #002f51;
+}
+
+.hbox-bottom {
+    -fx-background-color: #002f51;
+}
+
+.hbox-bottom-small {
+    -fx-background-color: 
+        #e9e6d9,
+        linear-gradient(#f5f3ed, #e9e6d9);
+    -fx-border-color: #002f51;
+    -fx-border-width: 5 0 0 0;
+}
+
+/*******************************************************************************
+ * Text Fields
+ ******************************************************************************/
+
+.text-field {
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: #002f51;
+    -fx-background-color: transparent;
+    -fx-background-insets: 0 -1 -1 -1, 0 0 0 0, 0 -1 3 -1;
+}
+
+/*******************************************************************************
+ * Titled Panes
+ ******************************************************************************/
+.ctitledpane {
+    -fx-background-color: #f5f3ed;
+    -fx-border-color: #3c87af;
+    -fx-border-width: 1;
+    -fx-border-radius: 8 8 8 8;    
+}
+
+.ctitledpane-title {
+    -fx-text-fill: #ffffff;
+    -fx-font: 14px Tahoma;
+}
+
+.ctitledpane-title-box {
+    -fx-background-color: #3c87af;
+    -fx-background-radius: 6 6 0 0;
+    -fx-content-display: top;
+    -fx-padding: 10, 10, 10, 10;
+}

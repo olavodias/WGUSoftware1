@@ -28,6 +28,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -85,19 +87,41 @@ public class FXMainScreen extends FXScreen {
         /* Label for Title */
         Label lblHeader_Title = new Label();
         lblHeader_Title.setText(super.getTitle());
+        lblHeader_Title.getStyleClass().add("label-header");
+
+        /* WGU Logo */
+        Image image = new Image("inventorysystem/wguLogo.png");
+        ImageView imageView = new ImageView();
+        imageView.setImage(image);
+
+        /* Grid to Display Title and Logo */
+        GridPane gridHeader = new GridPane();
+        gridHeader.setAlignment(Pos.CENTER);
+        gridHeader.setGridLinesVisible(true);
         
-        if (super.isStyled()) 
-            lblHeader_Title.getStyleClass().add("darkblue-window-title-text");
+        /* Create Column Constraints */
+        ColumnConstraints[] colConstraintsGridHeader = new ColumnConstraints[2];
+        
+        colConstraintsGridHeader[0] = new ColumnConstraints();
+        colConstraintsGridHeader[0].setPercentWidth(70);
+        colConstraintsGridHeader[0].setHalignment(HPos.LEFT); 
+        
+        colConstraintsGridHeader[1] = new ColumnConstraints();
+        colConstraintsGridHeader[1].setPercentWidth(30);
+        colConstraintsGridHeader[1].setHalignment(HPos.RIGHT); 
+        
+        gridHeader.getColumnConstraints().addAll(colConstraintsGridHeader);
+        
+        gridHeader.add(lblHeader_Title, 0, 0);
+        gridHeader.add(imageView, 1, 0);
         
         /* Horizontal Box */
         HBox hBoxHeader = new HBox();
-        hBoxHeader.getChildren().add(lblHeader_Title);
-        hBoxHeader.setMinHeight(50);
+        hBoxHeader.getChildren().add(gridHeader);
+        hBoxHeader.setMinHeight(40);
         hBoxHeader.setAlignment(Pos.CENTER_LEFT);
-        hBoxHeader.setPadding(new Insets(20));
-        
-        if (super.isStyled()) 
-            hBoxHeader.getStyleClass().add("darkblue-window-title");
+        hBoxHeader.setPadding(new Insets(15));
+        hBoxHeader.getStyleClass().add("hbox-header");
 
         /***********************************************************************
          * Bottom
@@ -107,22 +131,18 @@ public class FXMainScreen extends FXScreen {
         Button btnBottom_LoadData = new Button();
         btnBottom_LoadData.setText("LOAD TEST DATA");
         btnBottom_LoadData.setPrefSize(170, 25);
+        btnBottom_LoadData.getStyleClass().add("button-type2");        
         btnBottom_LoadData.setOnAction((ActionEvent e) -> { 
         
             /* Calls the event handler */
             handleLoadTestDataButtonAction(e);
         });
 
-        if (super.isStyled())
-            btnBottom_LoadData.getStyleClass().add("darkblue-button");        
-        
         /* Button to Exit */
         Button btnBottom_Exit = new Button();
         btnBottom_Exit.setText("EXIT");
         btnBottom_Exit.setPrefSize(100, 25);
-        
-        if (super.isStyled())
-            btnBottom_Exit.getStyleClass().add("darkblue-button");        
+        btnBottom_Exit.getStyleClass().add("button-type2");        
         
         btnBottom_Exit.setOnAction(e -> Platform.exit());
         
@@ -132,6 +152,7 @@ public class FXMainScreen extends FXScreen {
         hBoxBottom.setAlignment(Pos.CENTER_RIGHT);
         hBoxBottom.setPadding(new Insets(0, 20, 0, 0));
         hBoxBottom.setSpacing(6);
+        hBoxBottom.getStyleClass().add("hbox-bottom");
         
         /***********************************************************************
          * Center
@@ -142,20 +163,21 @@ public class FXMainScreen extends FXScreen {
          **************************************/
         BorderPane paneParts = FXGUIHelper.createTitledPanel("Parts", 
                                                              this.createPartsPaneDetails(), 
-                                                             (super.isStyled() ? "darkblue-titledpane" : ""));
+                                                             "ctitledpane");
 
         /***************************************
          * Right Panel
          **************************************/
         BorderPane paneProducts = FXGUIHelper.createTitledPanel("Products", 
                                                                 this.createProductsPaneDetails(), 
-                                                                (super.isStyled() ? "darkblue-titledpane" : ""));
+                                                                "ctitledpane");
 
         /***************************************
          * GridPane for Both Panels
          **************************************/
         GridPane gridCenter = new GridPane();
-        gridCenter.setId("gridCenter");
+        gridCenter.setHgap(16);
+        gridCenter.setPadding(new Insets(16));
         
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setPercentWidth(50);
@@ -226,6 +248,7 @@ public class FXMainScreen extends FXScreen {
         
         Button btnSearch = new Button();
         btnSearch.setText("Go");
+        btnSearch.getStyleClass().add("button-type1");
         btnSearch.setOnAction((ActionEvent event) -> { 
         
             /* Do nothing if there is nothing on the search textfield */
@@ -300,6 +323,7 @@ public class FXMainScreen extends FXScreen {
         Button btnActionAdd = new Button();
         btnActionAdd.setText("Add");
         btnActionAdd.setPrefSize(130, 20);
+        btnActionAdd.getStyleClass().add("button-type3");
         btnActionAdd.setOnAction((ActionEvent e) -> {
             /* Create the FXPartSetupScreen at Add Mode and show it */
             FXPartSetupScreen newForm = new FXPartSetupScreen(getCssPath());
@@ -309,14 +333,12 @@ public class FXMainScreen extends FXScreen {
                 Inventory.getInstance().addPart(newForm.getModifiedPart());
             else
                 e.consume();
-        });
-        
-        if (super.isStyled())
-            btnActionAdd.getStyleClass().add("darkblue-button");
+        });              
 
         Button btnActionModify = new Button();
         btnActionModify.setText("Modify");
         btnActionModify.setPrefSize(130, 20);        
+        btnActionModify.getStyleClass().add("button-type3");
         btnActionModify.setOnAction((ActionEvent e) -> {
             
             /* Retrieve Selected Item */
@@ -337,13 +359,11 @@ public class FXMainScreen extends FXScreen {
             else
                 e.consume();
         });
-        
-        if (super.isStyled())
-            btnActionModify.getStyleClass().add("darkblue-button");
 
         Button btnActionDelete = new Button();
         btnActionDelete.setText("Delete");
         btnActionDelete.setPrefSize(130, 20);
+        btnActionDelete.getStyleClass().add("button-type3");
         btnActionDelete.setOnAction((ActionEvent e) -> { 
         
             /* Retrieve Selected Item */
@@ -388,9 +408,6 @@ public class FXMainScreen extends FXScreen {
         actionsBarGridPane.add(btnActionModify, 1, 0);
         actionsBarGridPane.add(btnActionDelete, 2, 0);
 
-        if (super.isStyled())
-            btnActionDelete.getStyleClass().add("darkblue-button");
-        
         /**********************************************
          * Table View
          **********************************************/
@@ -474,7 +491,8 @@ public class FXMainScreen extends FXScreen {
         TextField txtSearch = new TextField();
         
         Button btnSearch = new Button();
-        btnSearch.setText("Go");
+        btnSearch.setText("Go");  
+        btnSearch.getStyleClass().add("button-type1");
         btnSearch.setOnAction((ActionEvent event) -> { 
         
             /* Do nothing if there is nothing on the search textfield */
@@ -550,6 +568,7 @@ public class FXMainScreen extends FXScreen {
         Button btnActionAdd = new Button();
         btnActionAdd.setText("Add");
         btnActionAdd.setPrefSize(130, 20);
+        btnActionAdd.getStyleClass().add("button-type3");
         btnActionAdd.setOnAction((ActionEvent e) -> {
             /* Create the FXPartSetupScreen at Add Mode and show it */
             FXProductSetupScreen newForm = new FXProductSetupScreen(getCssPath());
@@ -561,12 +580,10 @@ public class FXMainScreen extends FXScreen {
                 e.consume();
         });
         
-        if (super.isStyled())
-            btnActionAdd.getStyleClass().add("darkblue-button");
-
         Button btnActionModify = new Button();
         btnActionModify.setText("Modify");
         btnActionModify.setPrefSize(130, 20);        
+        btnActionModify.getStyleClass().add("button-type3");
         btnActionModify.setOnAction((ActionEvent e) -> {
             
             /* Retrieve Selected Item */
@@ -588,12 +605,10 @@ public class FXMainScreen extends FXScreen {
                 e.consume();
         });
         
-        if (super.isStyled())
-            btnActionModify.getStyleClass().add("darkblue-button");
-
         Button btnActionDelete = new Button();
         btnActionDelete.setText("Delete");
         btnActionDelete.setPrefSize(130, 20);
+        btnActionDelete.getStyleClass().add("button-type3");
         btnActionDelete.setOnAction((ActionEvent e) -> { 
         
             /* Retrieve Selected Item */
@@ -631,9 +646,6 @@ public class FXMainScreen extends FXScreen {
         actionsBarGridPane.add(btnActionModify, 1, 0);
         actionsBarGridPane.add(btnActionDelete, 2, 0);
 
-        if (super.isStyled())
-            btnActionDelete.getStyleClass().add("darkblue-button");
-        
         /**********************************************
          * Table View
          **********************************************/
@@ -779,5 +791,4 @@ public class FXMainScreen extends FXScreen {
         /* Stop event handling */
         event.consume();
     }
-    
 }

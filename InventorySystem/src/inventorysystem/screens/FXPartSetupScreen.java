@@ -218,7 +218,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         else 
             lblHeader_Title.setText("Modify Parts");
         
-        lblHeader_Title.getStyleClass().add("darkblue-windowsmall-title-text");
+        lblHeader_Title.getStyleClass().add("label-header-small");
         
         /* Horizontal Box */
         HBox hBoxHeader = new HBox();
@@ -226,7 +226,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         hBoxHeader.setMinHeight(30);
         hBoxHeader.setAlignment(Pos.CENTER_LEFT);
         hBoxHeader.setPadding(new Insets(12));
-        hBoxHeader.getStyleClass().add("darkblue-windowsmall-title");
+        hBoxHeader.getStyleClass().add("hbox-header-small");
 
         /******************************************
          * Bottom
@@ -235,7 +235,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         /* Add Action Bar Contents */
         Button btnActionSave = new Button();
         btnActionSave.setText("Save");
-        btnActionSave.getStyleClass().add("darkblue-button");
+        btnActionSave.getStyleClass().add("button-type2");
         btnActionSave.setPrefSize(100, 20);
         btnActionSave.setOnAction((ActionEvent e) -> {
             /* Sets the result to OK and close screen */
@@ -244,7 +244,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
 
         Button btnActionCancel = new Button();
         btnActionCancel.setText("Cancel");
-        btnActionCancel.getStyleClass().add("darkblue-button");
+        btnActionCancel.getStyleClass().add("button-type2");
         btnActionCancel.setPrefSize(100, 20);
         btnActionCancel.setOnAction((ActionEvent e) -> {
             
@@ -261,6 +261,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         HBox hBoxFooter = new HBox();
         hBoxFooter.setAlignment(Pos.CENTER_RIGHT);
         hBoxFooter.setSpacing(10);
+        hBoxFooter.getStyleClass().add("hbox-bottom-small");
         hBoxFooter.setPadding(new Insets(10));
         
         hBoxFooter.getChildren().addAll(btnActionSave, btnActionCancel);
@@ -296,6 +297,7 @@ public class FXPartSetupScreen extends FXMultiModeScreen {
         lblField_ID.setText("ID");
         txtField_ID = new TextField();
         txtField_ID.setEditable(false);
+        txtField_ID.setDisable(true);
 
         /* Field: Name */
         lblField_Name = new Label();

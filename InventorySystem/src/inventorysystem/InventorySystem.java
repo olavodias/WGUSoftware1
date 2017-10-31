@@ -25,7 +25,8 @@ public class InventorySystem extends Application {
         /***********************************************************************
          * Create the Main Screen
          **********************************************************************/
-        FXMainScreen formMainScreen = new FXMainScreen("inventorysystem/InventorySystem.css");
+        //FXMainScreen formMainScreen = new FXMainScreen("inventorysystem/InventorySystem.css");
+        FXMainScreen formMainScreen = new FXMainScreen("inventorysystem/wguTheme.css");
         formMainScreen.setCurrentStage(primaryStage);
                 
         primaryStage.setTitle(formMainScreen.getTitle());

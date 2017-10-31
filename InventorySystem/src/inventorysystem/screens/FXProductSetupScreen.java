@@ -10,8 +10,6 @@ import inventorysystem.exceptions.FXFormInputException;
 import inventorysystem.models.Inventory;
 import inventorysystem.models.Part;
 import inventorysystem.models.Product;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -202,13 +200,12 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         
         /* Label for Title */
         Label lblHeader_Title = new Label();
+        lblHeader_Title.getStyleClass().add("label-header-small");
         
         if (super.getMode() == FXMode.ADD)
             lblHeader_Title.setText("Add Products");
         else 
             lblHeader_Title.setText("Modify Products");
-        
-        lblHeader_Title.getStyleClass().add("darkblue-windowsmall-title-text");
         
         /* Horizontal Box */
         HBox hBoxHeader = new HBox();
@@ -216,7 +213,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         hBoxHeader.setMinHeight(30);
         hBoxHeader.setAlignment(Pos.CENTER_LEFT);
         hBoxHeader.setPadding(new Insets(12));
-        hBoxHeader.getStyleClass().add("darkblue-windowsmall-title");
+        hBoxHeader.getStyleClass().add("hbox-header-small");
 
         /******************************************
          * Bottom
@@ -225,7 +222,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         /* Add Action Bar Contents */
         Button btnActionSave = new Button();
         btnActionSave.setText("Save");
-        btnActionSave.getStyleClass().add("darkblue-button");
+        btnActionSave.getStyleClass().add("button-type2");
         btnActionSave.setPrefSize(100, 20);
         btnActionSave.setOnAction((ActionEvent e) -> {
             /* Sets the result to OK and close screen */
@@ -234,7 +231,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
 
         Button btnActionCancel = new Button();
         btnActionCancel.setText("Cancel");
-        btnActionCancel.getStyleClass().add("darkblue-button");
+        btnActionCancel.getStyleClass().add("button-type2");
         btnActionCancel.setPrefSize(100, 20);
         btnActionCancel.setOnAction((ActionEvent e) -> {
             
@@ -251,6 +248,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         HBox hBoxFooter = new HBox();
         hBoxFooter.setAlignment(Pos.CENTER_RIGHT);
         hBoxFooter.setSpacing(10);
+        hBoxFooter.getStyleClass().add("hbox-bottom-small");
         hBoxFooter.setPadding(new Insets(10));
         
         hBoxFooter.getChildren().addAll(btnActionSave, btnActionCancel);
@@ -295,6 +293,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         lblField_ID.setText("ID");
         txtField_ID = new TextField();
         txtField_ID.setEditable(false);
+        txtField_ID.setDisable(true);
 
         /* Field: Name */
         lblField_Name = new Label();
@@ -404,14 +403,14 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         /* Create Grid for All Parts */
         BorderPane paneAllParts = FXGUIHelper.createTitledPanel("Available Parts", 
                                                                 this.createAllPartsPaneDetails(), 
-                                                                (super.isStyled() ? "darkblue-titledpane" : ""));
+                                                                "ctitledpane");
         
         
         
         /* Create Grid for Product Parts */
         BorderPane paneProductParts = FXGUIHelper.createTitledPanel("Product Parts", 
                                                                     this.createProductPartsPaneDetails(), 
-                                                                    (super.isStyled() ? "darkblue-titledpane" : ""));
+                                                                    "ctitledpane");
         
         gridCenterParts.add(paneAllParts, 0, 0);
         gridCenterParts.add(paneProductParts, 0, 1);
@@ -645,6 +644,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         
         Button btnSearch = new Button();
         btnSearch.setText("Go");
+        btnSearch.getStyleClass().add("button-type1");
         btnSearch.setOnAction((ActionEvent event) -> { 
         
             /* Do nothing if there is nothing on the search textfield */
@@ -711,6 +711,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         Button btnActionAdd = new Button();
         btnActionAdd.setText("Add");
         btnActionAdd.setPrefSize(130, 20);
+        btnActionAdd.getStyleClass().add("button-type3");
         btnActionAdd.setOnAction((ActionEvent e) -> {
             /* Include Part on the Product */
             if (tableAllParts.getSelectionModel().getSelectedItem() == null) {
@@ -728,9 +729,6 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
                 _modifiedProduct.addAssociatedPart(originalPart);
         });
         
-        if (super.isStyled())
-            btnActionAdd.getStyleClass().add("darkblue-button");
-
         actionsBarGridPane.add(btnActionAdd, 0, 0);
 
         /**********************************************
@@ -806,6 +804,7 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         Button btnActionDelete = new Button();
         btnActionDelete.setText("Delete");
         btnActionDelete.setPrefSize(130, 20);
+        btnActionDelete.getStyleClass().add("button-type3");
         btnActionDelete.setOnAction((ActionEvent e) -> {
             /* Include Part on the Product */
             if (tableProductParts.getSelectionModel().getSelectedItem() == null) {
@@ -824,9 +823,6 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             
         });
         
-        if (super.isStyled())
-            btnActionDelete.getStyleClass().add("darkblue-button");
-
         actionsBarGridPane.add(btnActionDelete, 0, 0);
 
         /**********************************************

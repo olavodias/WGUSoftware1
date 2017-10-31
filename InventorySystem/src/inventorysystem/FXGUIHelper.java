@@ -23,69 +23,37 @@ import javafx.scene.layout.StackPane;
  */
 public class FXGUIHelper {
     
+    
     /**
-     * Method to return a Panel embedding the input content.
-     * Use CSS to define the following classes:
-     *    - .roundedpanel-content
-     *    - .roundedpanel-border
-     * 
-     * @param content   A Node containing the Content
-     * @return          A Panel to Wrap the Given Content
+     * Creates a Titled Panel with a Header and a Content
+     * @param title     The Panel Title
+     * @param content   A Node Representing the Contents to be displayed inside it
+     * @return          A Border Pane with the Titled Panel
      */
-    public static StackPane createPanel(Node content)
-    {
-        /* Create the panel without any css class */
-        return createPanel(content, "");
-    }
-    
-    public static StackPane createPanel(Node content, String cssclass)
-    {
-        /* Create Panes */
-        StackPane wrapperPane = new StackPane();
-        StackPane contentPane = new StackPane();
-        
-        /* Format Panes */
-        if (cssclass != "")
-        {
-            content.getStyleClass().add(cssclass + "-content");
-            wrapperPane.getStyleClass().add(cssclass + "-border");
-        }
-
-        /* Add the Panes */
-        contentPane.getChildren().add(content);
-        wrapperPane.getChildren().add(contentPane);
-        
-        /* Return the Wrapper Pane */
-        return wrapperPane;               
-    }
-    
-    public static StackPane createRoundedPanel(Node content)
-    {
-        return createPanel(content, "roundedpanel");
-    }
-    
     public static BorderPane createTitledPanel(String title, Node content)
     {
         /* Create Titled Panel with blank on the css class */
         return createTitledPanel(title, content, "");
     }
  
+    /**
+     * Creates a Titled Panel with a Header and a Content
+     * @param title     The Panel Title
+     * @param content   A Node Representing the Contents to be displayed inside it
+     * @param cssclass  The CSS Class to use
+     * @return          A Border Pane with the Titled Panel
+     */
     public static BorderPane createTitledPanel(String title, Node content, String cssclass)
     {
         /* Create the Pane */
         BorderPane pane = new BorderPane();
-        
-        if (cssclass != "")
-            pane.getStyleClass().add(cssclass);
+        pane.getStyleClass().add(cssclass);
         
         /* Create the Title Header */
         Label lblTitledPaneHeader = new Label();
         lblTitledPaneHeader.setText(title);
         
-        if (cssclass == "")
-            lblTitledPaneHeader.setStyle("-fx-text-fill: #ffffff");
-        else
-            lblTitledPaneHeader.getStyleClass().add(cssclass + "-title");
+        lblTitledPaneHeader.getStyleClass().add(cssclass + "-title");
  
         /* Create the HBox to wrap the Title Header */
         HBox hBoxTitle = new HBox();
@@ -93,10 +61,7 @@ public class FXGUIHelper {
         hBoxTitle.setAlignment(Pos.CENTER_LEFT);
         hBoxTitle.setPrefHeight(30);
         
-        if (cssclass == "")
-            hBoxTitle.setStyle("-fx-background-color: #c0c0c0;");
-        else
-            hBoxTitle.getStyleClass().add(cssclass + "-title-box");
+        hBoxTitle.getStyleClass().add(cssclass + "-title-box");
 
         /* Add Contents to the BorderPane */
         pane.setTop(hBoxTitle);
