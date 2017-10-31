@@ -97,7 +97,9 @@ public class FXMainScreen extends FXScreen {
         /* Grid to Display Title and Logo */
         GridPane gridHeader = new GridPane();
         gridHeader.setAlignment(Pos.CENTER);
-        gridHeader.setGridLinesVisible(true);
+        gridHeader.setMinHeight(60);
+        gridHeader.setPadding(new Insets(15));
+        gridHeader.getStyleClass().add("hbox-header");
         
         /* Create Column Constraints */
         ColumnConstraints[] colConstraintsGridHeader = new ColumnConstraints[2];
@@ -115,14 +117,6 @@ public class FXMainScreen extends FXScreen {
         gridHeader.add(lblHeader_Title, 0, 0);
         gridHeader.add(imageView, 1, 0);
         
-        /* Horizontal Box */
-        HBox hBoxHeader = new HBox();
-        hBoxHeader.getChildren().add(gridHeader);
-        hBoxHeader.setMinHeight(40);
-        hBoxHeader.setAlignment(Pos.CENTER_LEFT);
-        hBoxHeader.setPadding(new Insets(15));
-        hBoxHeader.getStyleClass().add("hbox-header");
-
         /***********************************************************************
          * Bottom
          **********************************************************************/
@@ -196,7 +190,7 @@ public class FXMainScreen extends FXScreen {
          * Border Pane
          **********************************************************************/
         BorderPane border = new BorderPane();
-        border.setTop(hBoxHeader);
+        border.setTop(gridHeader);
         border.setCenter(gridCenter);
         border.setBottom(hBoxBottom);
 

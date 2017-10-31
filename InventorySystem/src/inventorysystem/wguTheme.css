@@ -11,7 +11,9 @@ and open the template in the editor.
 /* This CSS is used to give the application the same look and feel of WGU website */
 
 .root {
-    -fx-background-color: white;    
+    -fx-background-color: 
+        white,
+        linear-gradient(#ffffff, #f4f2f2);
 }
 
 /*******************************************************************************
@@ -56,18 +58,14 @@ and open the template in the editor.
  * Labels 
  ******************************************************************************/
 
-.label {
-    
-}
-
 .label-header {
-    -fx-text-fill: #333;
+    -fx-text-fill: #002f51;
     -fx-font: 22px Tahoma;
     -fx-font-weight: bold;
 }
 
 .label-header-small {
-    -fx-text-fill: #333;
+    -fx-text-fill: #002f51;
     -fx-font: 16px Tahoma;
     -fx-font-weight: bold;
 }
