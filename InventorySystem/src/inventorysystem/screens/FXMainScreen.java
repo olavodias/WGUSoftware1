@@ -6,10 +6,14 @@
 package inventorysystem.screens;
 
 import inventorysystem.FXGUIHelper;
+import inventorysystem.models.InHousePart;
 import inventorysystem.models.Inventory;
+import inventorysystem.models.OutsourcedPart;
 import inventorysystem.models.Part;
 import inventorysystem.models.Product;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -98,6 +102,19 @@ public class FXMainScreen extends FXScreen {
         /***********************************************************************
          * Bottom
          **********************************************************************/
+
+        /* Button to Load Default Values */
+        Button btnBottom_LoadData = new Button();
+        btnBottom_LoadData.setText("LOAD TEST DATA");
+        btnBottom_LoadData.setPrefSize(170, 25);
+        btnBottom_LoadData.setOnAction((ActionEvent e) -> { 
+        
+            /* Calls the event handler */
+            handleLoadTestDataButtonAction(e);
+        });
+
+        if (super.isStyled())
+            btnBottom_LoadData.getStyleClass().add("darkblue-button");        
         
         /* Button to Exit */
         Button btnBottom_Exit = new Button();
@@ -110,10 +127,11 @@ public class FXMainScreen extends FXScreen {
         btnBottom_Exit.setOnAction(e -> Platform.exit());
         
         /* Box to wrap the Button */
-        HBox hBoxBottom = new HBox(btnBottom_Exit);
+        HBox hBoxBottom = new HBox(btnBottom_LoadData, btnBottom_Exit);
         hBoxBottom.setPrefHeight(57);
         hBoxBottom.setAlignment(Pos.CENTER_RIGHT);
         hBoxBottom.setPadding(new Insets(0, 20, 0, 0));
+        hBoxBottom.setSpacing(6);
         
         /***********************************************************************
          * Center
@@ -189,11 +207,11 @@ public class FXMainScreen extends FXScreen {
         ColumnConstraints[] colConstraints = new ColumnConstraints[3];
 
         colConstraints[0] = new ColumnConstraints();
-        colConstraints[0].setPercentWidth(20);
+        colConstraints[0].setPercentWidth(14);
         colConstraints[0].setHalignment(HPos.RIGHT);
         
         colConstraints[1] = new ColumnConstraints();
-        colConstraints[1].setPercentWidth(66);
+        colConstraints[1].setPercentWidth(72);
         
         colConstraints[2] = new ColumnConstraints();
         colConstraints[2].setPercentWidth(14);
@@ -336,6 +354,21 @@ public class FXMainScreen extends FXScreen {
                 
             Part originalPart = (Part)tableParts.getSelectionModel().getSelectedItem();
             
+            /* Check if part is not in use by any product */
+            ArrayList<String> productsWhereUsed = Inventory.getInstance().partExistsInProducts(originalPart);
+            
+            if (!productsWhereUsed.isEmpty()) {
+                /* The part is in use by products, display list */
+                String listOfProducts = "\n - " + String.join("\n - ", productsWhereUsed);
+                FXGUIHelper.ErrorBox(DEFAULTTITLE, 
+                                     "Part is in use", 
+                                     String.format("The part you are trying to delete is in use by: %s ", listOfProducts));
+                
+                /* Stop Event Chain */
+                e.consume();
+                return;
+            }
+            
             /* Display alert to ask for confirmation */
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Delete Part");
@@ -423,11 +456,11 @@ public class FXMainScreen extends FXScreen {
         ColumnConstraints[] colConstraints = new ColumnConstraints[3];
 
         colConstraints[0] = new ColumnConstraints();
-        colConstraints[0].setPercentWidth(20);
+        colConstraints[0].setPercentWidth(14);
         colConstraints[0].setHalignment(HPos.RIGHT);
         
         colConstraints[1] = new ColumnConstraints();
-        colConstraints[1].setPercentWidth(66);
+        colConstraints[1].setPercentWidth(72);
         
         colConstraints[2] = new ColumnConstraints();
         colConstraints[2].setPercentWidth(14);
@@ -463,6 +496,7 @@ public class FXMainScreen extends FXScreen {
                 if (product != null) {
                     /* Select it on the TableView and exit */
                     tableProducts.getSelectionModel().select(product);
+                    tableProducts.scrollTo(tableProducts.getSelectionModel().getSelectedIndex());
                     return;
                 }
             }
@@ -563,24 +597,32 @@ public class FXMainScreen extends FXScreen {
         btnActionDelete.setOnAction((ActionEvent e) -> { 
         
             /* Retrieve Selected Item */
-            if (tableParts.getSelectionModel().getSelectedItem() == null) {
+            if (tableProducts.getSelectionModel().getSelectedItem() == null) {
                 e.consume();
                 return;
             }
                 
-            Part originalPart = (Part)tableParts.getSelectionModel().getSelectedItem();
+            /* Get Product to be deleted */
+            Product originalProduct = (Product)tableProducts.getSelectionModel().getSelectedItem();
+            
+            /* Validate number of child parts */
+            if (!originalProduct.getAssociatedParts().isEmpty()) {
+                FXGUIHelper.ErrorBox("Delete Product", "Unable to Delete Product", "The product you are trying to delete has parts inside it.");
+                e.consume();
+                return;
+            }
             
             /* Display alert to ask for confirmation */
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Delete Part");
+            alert.setTitle("Delete Product");
             alert.setHeaderText("Are you sure?");
             alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-            alert.setContentText(String.format("You are about to remote item %d (%s) from your parts collection...", originalPart.getPartID(), originalPart.getName()));
+            alert.setContentText(String.format("You are about to remote item %d (%s) from your product collection...", originalProduct.getProductID(), originalProduct.getName()));
             
             /* Process Confirmation Result */
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK)
-                Inventory.getInstance().deletePart(originalPart);
+                Inventory.getInstance().removeProduct(originalProduct);
             else
                 e.consume();
         });
@@ -601,24 +643,24 @@ public class FXMainScreen extends FXScreen {
         /* Define Columns */
 
         /* Column 01: Product ID */
-        TableColumn<Product, String> tColProductID = new TableColumn<>("Product ID");
+        TableColumn<Product, String> tColProductID = new TableColumn<>("ID");
         tColProductID.setCellValueFactory(new PropertyValueFactory<>("productID"));
-        tColProductID.setMinWidth(55);
+        tColProductID.setPrefWidth(35);
 
         /* Column 02: Product Name */
         TableColumn<Product, String> tColProductName = new TableColumn<>("Product Name");
         tColProductName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        tColProductName.setMinWidth(95);
+        tColProductName.setPrefWidth(115);
         
         /* Column 03: Inventory Level */
         TableColumn<Product, Integer> tColInventoryLevel = new TableColumn<>("Inventory Level");
         tColInventoryLevel.setCellValueFactory(new PropertyValueFactory<>("inStock"));
-        tColInventoryLevel.setMinWidth(130);
+        tColInventoryLevel.setPrefWidth(130);
 
         /* Column 04: Price/Cost per Unit */
         TableColumn<Product, Double> tColPriceCost = new TableColumn<>("Price/Cost per Unit");
         tColPriceCost.setCellValueFactory(new PropertyValueFactory<>("price"));
-        tColPriceCost.setMinWidth(150);
+        tColPriceCost.setPrefWidth(150);
         
         tableProducts.getColumns().addAll(tColProductID,
                                           tColProductName,
@@ -633,6 +675,109 @@ public class FXMainScreen extends FXScreen {
         productsPane.setBottom(actionsBarGridPane);
         
         return productsPane;
+    }
+    
+    /**
+     * Handler for the Load Default Data Button
+     * This method generates Parts and Products to use for testing the program
+     * @param event The ActionEvent to control the event handling
+     */
+    private void handleLoadTestDataButtonAction(ActionEvent event) {
+        
+        /* Clear Existing Data */
+        Inventory.resetInstance();
+        
+        /***********************************************************************
+         * Add Parts
+         **********************************************************************/
+        
+        /* Now add Parts to it */
+        Part[] parts = new Part[10];
+        
+        for (int i = 1; i <= 10; i++) {
+            
+            if (i <= 5)
+            {
+                /* Create an Inouse Part */
+                parts[i-1] = new InHousePart();
+                ((InHousePart)parts[i-1]).setMachineID(i * 10 + 1000);
+            }
+            else
+            {
+                /* Create an Inouse Part */
+                parts[i-1] = new OutsourcedPart();
+                ((OutsourcedPart)parts[i-1]).setCompanyName(String.format("Company %d", i));
+            }
+            
+            parts[i-1].setPartID(Inventory.getInstance().getNextPartID());
+            parts[i-1].setName(String.format("Part %d", parts[i-1].getPartID()));
+            parts[i-1].setInStock(i * 10);
+            parts[i-1].setMax(i * 10 + 10);
+            parts[i-1].setMin(i * 10);
+            parts[i-1].setPrice(i * 10);
+            
+            /* Add to the Inventory */
+            Inventory.getInstance().addPart(parts[i-1]);
+        }
+        
+        /***********************************************************************
+         * Add Products
+         **********************************************************************/
+        String[] natoAlphabet = new String[] { "Alpha", "Bravo", "Charlie", "Delta", "Echo",
+                                                "Foxtrot", "Golf", "Hotel", "India", "Juliet",
+                                                "Kilo", "Lima", "Mike", "November", "Oscar",
+                                                "Papa", "Quebec", "Romeo", "Sierra", "Tango", 
+                                                "Uniform", "Victor", "Whiskey", "Xray",
+                                                "Yankee", "Zulu" };
+        
+        Product[] products = new Product[30];
+        
+        for (int i = 1; i <= 26; i++) { 
+            
+            /* Initialize Product */
+            products[i-1] = new Product();
+            
+            products[i-1].setProductID(Inventory.getInstance().getNextProductID());
+            products[i-1].setName(String.format("Product %s", natoAlphabet[i-1]));
+            products[i-1].setInStock(i * 10);
+            products[i-1].setMax(i * 10 + 10);
+            products[i-1].setMin(i * 10);
+            
+            /* Define Number of Child Parts */
+            int randomCountOfChildParts = ThreadLocalRandom.current().nextInt(1, 9);
+            
+            /* Assign Random Parts to the Collection */
+            for (int r = 1; r <= randomCountOfChildParts; r++) {
+                
+                int indexOfPartToAdd = ThreadLocalRandom.current().nextInt(0, 9);
+                products[i-1].addAssociatedPart(parts[indexOfPartToAdd]);
+            }
+            
+            /* Set Price */
+            products[i-1].setPrice(products[i-1].getTotalComponentsPrice() + 100);
+
+            /* Add to Inventory */
+            Inventory.getInstance().addProduct(products[i-1]);
+        }
+        
+        /* Add Empty Products */        
+        for (int i = 27; i <= 30; i++) {
+            /* Initialize Product */
+            products[i-1] = new Product();
+            
+            products[i-1].setProductID(Inventory.getInstance().getNextProductID());
+            products[i-1].setName(String.format("Product Empty %d", i - 26));
+            products[i-1].setInStock(i * 10);
+            products[i-1].setMax(i * 10 + 10);
+            products[i-1].setMin(i * 10);
+            products[i-1].setPrice(100);
+
+            /* Add to Inventory */
+            Inventory.getInstance().addProduct(products[i-1]);
+        }
+
+        /* Stop event handling */
+        event.consume();
     }
     
 }

@@ -74,9 +74,6 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
     TableView<Part> tableAllParts = new TableView();
     TableView<Part> tableProductParts = new TableView();
     
-    /* Lists */
-    ObservableList<Part> availableParts;
-    
     /***************************************************************************
      * Properties
      **************************************************************************/
@@ -188,9 +185,6 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             _modifiedProduct = (Product)_originalProduct.clone();
         else
             _modifiedProduct = new Product();
-        
-        /* Initialize List */
-        availableParts = FXCollections.observableArrayList();
         
         /* Create the Scene */
         this.createScene();
@@ -439,11 +433,6 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         super.applyCss();
 
         /***********************************************************************
-         * Fulfill list of Available Parts
-         **********************************************************************/
-        availableParts.addAll(Inventory.getInstance().getAllParts());
-
-        /***********************************************************************
          * Load Original Product when Mode is Modify
          **********************************************************************/
         
@@ -454,10 +443,6 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             txtField_PriceCost.setText(Double.toString(_originalProduct.getPrice()));
             txtField_InvMax.setText(Integer.toString(_originalProduct.getMax()));
             txtField_InvMin.setText(Integer.toString(_originalProduct.getMin()));
-            
-            /* Remove Product Parts from Available Parts */
-            for (Part productPart : _originalProduct.getAssociatedParts())
-                availableParts.remove(productPart);
         }
         else
         {
@@ -580,11 +565,11 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
             }
             
             /* Check if there are parts inside the product */
-            if (_modifiedProduct.getAssociatedParts().size() == 0) {
+            if (_modifiedProduct.getAssociatedParts().isEmpty()) {
                 /* Throws the exception to the next catch block */
                 throw new FXFormInputException("A product must have at least one part.", 
                                                "Product Parts Validation",
-                                               txtField_Name);                
+                                               null);                
             }
             
             /* Sets the Result to "OK" and close screen */
@@ -641,11 +626,11 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         ColumnConstraints[] colConstraints = new ColumnConstraints[3];
 
         colConstraints[0] = new ColumnConstraints();
-        colConstraints[0].setPercentWidth(20);
+        colConstraints[0].setPercentWidth(14);
         colConstraints[0].setHalignment(HPos.RIGHT);
         
         colConstraints[1] = new ColumnConstraints();
-        colConstraints[1].setPercentWidth(66);
+        colConstraints[1].setPercentWidth(72);
         
         colConstraints[2] = new ColumnConstraints();
         colConstraints[2].setPercentWidth(14);
@@ -727,7 +712,20 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         btnActionAdd.setText("Add");
         btnActionAdd.setPrefSize(130, 20);
         btnActionAdd.setOnAction((ActionEvent e) -> {
-            /* Include Part on the Grid */
+            /* Include Part on the Product */
+            if (tableAllParts.getSelectionModel().getSelectedItem() == null) {
+                e.consume();
+                return;
+            }
+                
+            /* Get Selected Part */
+            Part originalPart = (Part)tableAllParts.getSelectionModel().getSelectedItem();
+            
+            /* Add it to the Modified Product */
+            if (_modifiedProduct.getAssociatedParts().contains(originalPart))
+                FXGUIHelper.ErrorBox("Add Part to Product", "Part already in Product", "The Part you are trying to add already exists on the Product");
+            else
+                _modifiedProduct.addAssociatedPart(originalPart);
         });
         
         if (super.isStyled())
@@ -809,7 +807,21 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
         btnActionDelete.setText("Delete");
         btnActionDelete.setPrefSize(130, 20);
         btnActionDelete.setOnAction((ActionEvent e) -> {
-            /* Delete Part from the Product */
+            /* Include Part on the Product */
+            if (tableProductParts.getSelectionModel().getSelectedItem() == null) {
+                e.consume();
+                return;
+            }
+                
+            /* Get Selected Part */
+            Part selectedPart = (Part)tableProductParts.getSelectionModel().getSelectedItem();
+            
+            /* Add it to the Modified Product */
+            if (!_modifiedProduct.getAssociatedParts().contains(selectedPart))
+                FXGUIHelper.ErrorBox("Remove Part from Product", "Invalid Part", "The Part you are trying to delete does not exists on the Product.");
+            else
+                _modifiedProduct.removeAssociatedPart(selectedPart);
+            
         });
         
         if (super.isStyled())

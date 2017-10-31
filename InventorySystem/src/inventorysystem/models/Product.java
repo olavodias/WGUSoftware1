@@ -175,22 +175,36 @@ public class Product implements Cloneable {
      */
     public void addAssociatedPart(Part part) 
     {
-        _associatedParts.add(part);
+        if (!_associatedParts.contains(part))
+            _associatedParts.add(part);
     }
     
     /**
      * Removes the Associated Part from the Parts Collection
      * @param partID    The Part ID to be removed
-     * @return          A boolean to define whether the removal was successfull or not
+     * @return          A boolean to define whether the removal was successful or not
      */
     public boolean removeAssociatedPart(int partID) 
     {
         /* Look for Part ID in the array */
         Part part = lookupAssociatedPart(partID);
         
+        /* Remove by Part */
+        return removeAssociatedPart(part);
+    }
+
+    /**
+     * Removes the Associated Part from the Parts Collection
+     * @param part      Reference to the Part to be removed
+     * @return          A boolean to define whether the removal was successful or not
+     */
+    public boolean removeAssociatedPart(Part part) 
+    {
         /* Check if part is found, if yes then remove it */
-        if (part != null)
+        if (part != null) {
             _associatedParts.remove(part);
+            return true;
+        }
         
         /* Part ID could not be found */
         return false;
@@ -267,9 +281,21 @@ public class Product implements Cloneable {
     {
         try
         {
-            return super.clone();
+            /* Create a new product instance with the same data as the existing product */
+            Product newProduct = new Product(this.getProductID(), 
+                                             this.getName(),
+                                             this.getPrice(),
+                                             this.getInStock(),
+                                             this.getMin(),
+                                             this.getMax());
+            
+            /* Copy all elements to the new product */
+            newProduct.getAssociatedParts().addAll(this.getAssociatedParts());
+            
+            /* Return the new product */
+            return newProduct;
         }
-        catch (CloneNotSupportedException e) 
+        catch (Exception e) 
         {
             return null;
         }

@@ -5,6 +5,7 @@
  */
 package inventorysystem.models;
 
+import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -19,11 +20,36 @@ public class Inventory {
      **************************************************************************/
     private static Inventory _instance;
     
+    /**
+     * Returns the instance of the Inventory Management Class
+     * @return An Inventory to perform Inventory Management Tasks
+     */
     public static Inventory getInstance() {
         if (_instance == null)
             _instance = new Inventory();
         
         return _instance;
+    }
+        
+    /**
+     * Resets the Inventory Instance
+     */
+    public static void resetInstance() {
+
+        /* Check if there is a valid instance to be reset */
+        if (_instance == null)
+            return;
+        
+        /* Clear Collections */
+        if (!_instance.getAllParts().isEmpty())
+            _instance.getAllParts().clear();
+        
+        if (!_instance.getProducts().isEmpty())
+            _instance.getProducts().clear();
+
+        /* Reset Next Numbers */
+        _instance.setNextPartID(1);
+        _instance.setNextProductID(1);
     }
 
     /***************************************************************************
@@ -73,6 +99,15 @@ public class Inventory {
             return _nextPartID;
     }
 
+    /**
+     * Sets the Next Part ID
+     * @param productID An integer containing the next part ID
+     */
+    private void setNextPartID(int partID) {
+        /* Set the variable */
+        _nextPartID = 1;
+    }
+    
     private int _nextProductID;
     
     /**
@@ -98,6 +133,15 @@ public class Inventory {
     }
     
     /**
+     * Sets the Next Product ID
+     * @param productID An integer containing the next product ID
+     */
+    private void setNextProductID(int productID) {
+        /* Set the variable */
+        _nextProductID = 1;
+    }
+    
+    /**
      * Initializes a new instance of the Inventory Management
      * This is a private constructor, because this object will be used following
      * the singleton design pattern
@@ -117,7 +161,10 @@ public class Inventory {
      * @param product The Product to be added
      */
     public void addProduct(Product product) {
-        _products.add(product);
+        
+        /* Ensure to not add the same product twice */
+        if (!_products.contains(product))
+            _products.add(product);
     }
     
     /**
@@ -227,7 +274,9 @@ public class Inventory {
      * @param part The Part to be added
      */
     public void addPart(Part part) {
-        _parts.add(part);
+        /* Ensure to not add the same part twice */
+        if (!_parts.contains(part))
+            _parts.add(part);
     }
     
     /**
@@ -298,6 +347,28 @@ public class Inventory {
     }
     
     /**
+     * Checks if the part exists in any other Product
+     * @param part      Reference to the part to be checked
+     * @return          A ArrayList of String containing a description for the Products where the part was found
+     */
+    public ArrayList<String> partExistsInProducts(Part part)
+    {
+        /* Internal Array List */
+        ArrayList<String> list = new ArrayList<>();
+        
+        /* Loop thru all products */
+        for (Product product : _products)
+        {
+            if (product.getAssociatedParts().contains(part))
+                list.add(String.format("%s (%d)", product.getName(), product.getProductID()));
+        }
+        
+        /* Returns the list */
+        return list;
+        
+    }
+    
+    /**
      * Updates a part
      * 
      * @deprecated
@@ -314,7 +385,18 @@ public class Inventory {
      */
     public void replacePart(Part originalPart, Part newPart)
     {
+        /* Replace part in Parts Collection */
         _parts.add(_parts.indexOf(originalPart), newPart);
         _parts.remove(originalPart);
+        
+        /* Replace part in each product containing it */
+        for (Product product : _products)
+        {
+            if (product.getAssociatedParts().contains(originalPart))
+            {
+                product.getAssociatedParts().add(product.getAssociatedParts().indexOf(originalPart), newPart);
+                product.getAssociatedParts().remove(originalPart);
+            }
+        }
     }
 }
