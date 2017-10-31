@@ -10,7 +10,6 @@ import inventorysystem.exceptions.FXFormInputException;
 import inventorysystem.models.Inventory;
 import inventorysystem.models.Part;
 import inventorysystem.models.Product;
-import java.util.Optional;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -578,6 +577,14 @@ public class FXProductSetupScreen extends FXMultiModeScreen {
                 throw new FXFormInputException(String.format("The Product Price is %f , which is lower than the total components price of %f", _modifiedProduct.getPrice(), _modifiedProduct.getTotalComponentsPrice()), 
                                                "Price Validation",
                                                txtField_PriceCost);
+            }
+            
+            /* Check if there are parts inside the product */
+            if (_modifiedProduct.getAssociatedParts().size() == 0) {
+                /* Throws the exception to the next catch block */
+                throw new FXFormInputException("A product must have at least one part.", 
+                                               "Product Parts Validation",
+                                               txtField_Name);                
             }
             
             /* Sets the Result to "OK" and close screen */
